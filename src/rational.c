@@ -159,11 +159,17 @@ struct Rational rdiv(struct Rational a, struct Rational b) {
 }
 
 struct Rational rmax(struct Rational a, struct Rational b) {
-	// TODO
+	if (a.denominator != b.denominator) toSameDenominator(&a, &b);
+
+    if (a.numerator > b.numerator) return a;
+    return b;
 }
 
 struct Rational rmin(struct Rational a, struct Rational b) {
-	// TODO
+	if (a.denominator != b.denominator) toSameDenominator(&a, &b);
+
+	if (a.numerator < b.numerator) return a;
+	return b;
 }
 
 void print_rational(struct Rational r) {
