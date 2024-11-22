@@ -1,4 +1,4 @@
-#include "rational.h"
+#include "../include/rational.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,21 +7,21 @@
 #include "util.h"
 
 long long get_numerator(struct Rational r) {
-	// TODO
+	return r.numerator;
 }
 
 long long get_denominator(struct Rational r) {
-	// TODO
+	return r.denominator;
 }
 
 void set_numerator(struct Rational * r, long long new_numerator) {
 	assert(r);
-	// TODO
+	r->numerator = new_numerator;
 }
 
 void set_denominator(struct Rational * r, long long new_denominator) {
 	assert(r);
-	// TODO
+	r->denominator = new_denominator;
 }
 
 /**
@@ -32,7 +32,11 @@ void set_denominator(struct Rational * r, long long new_denominator) {
  * @return PGCD(a,b)
  */
 static long long gcd(long long a, long long b) {
-	// TODO
+    int reste = a % b;
+
+    if (reste == 0) return b;
+
+    return gcd(b,reste);
 }
 
 void simplify(struct Rational * r) {
