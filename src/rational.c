@@ -44,35 +44,82 @@ void simplify(struct Rational * r) {
 	// TODO
 }
 
+/**
+ * Factorise le code de mise à égalité des rationnels
+ * @param[in] *r1
+ * @param[in] *r2
+ */
+void toSameDenominator(struct Rational *r1, struct Rational *r2) {
+  	r1->numerator *= r2->denominator;
+    r1->denominator *= r2->denominator;
+
+    r2->numerator *= r1->numerator;
+    r2->denominator *= r1->denominator;
+}
+
 int gt(struct Rational a, struct Rational b) {
-	// TODO
+	if (a.denominator != b.denominator) {
+		toSameDenominator(&a, &b);
+	}
+
+    if (a.numerator > b.numerator) return 1;
+
+    return 0;
 }
 
 int lt(struct Rational a, struct Rational b) {
-	// TODO
+	if (a.denominator != b.denominator) {
+		toSameDenominator(&a, &b);
+	}
+
+	if (a.numerator < b.numerator) return 1;
+	return 0;
 }
 
 int gte(struct Rational a, struct Rational b) {
-	// TODO
+	if (a.denominator != b.denominator) {
+		toSameDenominator(&a, &b);
+	}
+
+	if (a.numerator >= b.numerator) return 1;
+	return 0;
 }
 
 int lte(struct Rational a, struct Rational b) {
-	// TODO
+	if (a.denominator != b.denominator) {
+		toSameDenominator(&a, &b);
+	}
+
+	if (a.numerator <= b.numerator) return 1;
+	return 0;
 }
 
 int eq(struct Rational a, struct Rational b) {
-	// TODO
+	if (a.denominator != b.denominator) {
+		toSameDenominator(&a, &b);
+	}
+
+	if (a.numerator == b.numerator) return 1;
+	return 0;
 }
 
 int neq(struct Rational a, struct Rational b) {
-	// TODO
+	if (a.denominator != b.denominator) {
+		toSameDenominator(&a, &b);
+	}
+
+	if (a.numerator != b.numerator) return 1;
+	return 0;
 }
 
 // Pensez à simplifier le résultat.
 struct Rational radd(struct Rational a, struct Rational b) {
 	struct Rational res;
+    if (a.denominator != b.denominator) toSameDenominator(&a, &b);
+
     res.numerator = a.numerator + b.numerator;
     res.denominator = a.denominator + b.denominator;
+
     simplify(&res);
   	return res;
 }
@@ -80,8 +127,11 @@ struct Rational radd(struct Rational a, struct Rational b) {
 // Pensez à simplifier le résultat.
 struct Rational rsub(struct Rational a, struct Rational b) {
 	struct Rational res;
+    if (a.denominator != b.denominator) toSameDenominator(&a, &b);
+
 	res.numerator = a.numerator - b.numerator;
 	res.denominator = a.denominator - b.denominator;
+
     simplify(&res);
 	return res;
 }
@@ -89,8 +139,10 @@ struct Rational rsub(struct Rational a, struct Rational b) {
 // Pensez à simplifier le résultat.
 struct Rational rmul(struct Rational a, struct Rational b) {
 	struct Rational res;
+
 	res.numerator = a.numerator * b.numerator;
 	res.denominator = a.denominator * b.denominator;
+
     simplify(&res);
 	return res;
 }
@@ -98,8 +150,10 @@ struct Rational rmul(struct Rational a, struct Rational b) {
 // Pensez à simplifier le résultat.
 struct Rational rdiv(struct Rational a, struct Rational b) {
 	struct Rational res;
+
 	res.numerator = a.numerator / b.numerator;
 	res.denominator = a.denominator / b.denominator;
+
 	simplify(&res);
 	return res;
 }
