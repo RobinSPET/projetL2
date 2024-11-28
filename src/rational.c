@@ -70,22 +70,38 @@ int neq(struct Rational a, struct Rational b) {
 
 // Pensez à simplifier le résultat.
 struct Rational radd(struct Rational a, struct Rational b) {
-	// TODO
+	struct Rational res;
+    res.numerator = a.numerator + b.numerator;
+    res.denominator = a.denominator + b.denominator;
+    simplify(&res);
+  	return res;
 }
 
 // Pensez à simplifier le résultat.
 struct Rational rsub(struct Rational a, struct Rational b) {
-	// TODO
+	struct Rational res;
+	res.numerator = a.numerator - b.numerator;
+	res.denominator = a.denominator - b.denominator;
+    simplify(&res);
+	return res;
 }
 
 // Pensez à simplifier le résultat.
 struct Rational rmul(struct Rational a, struct Rational b) {
-	// TODO
+	struct Rational res;
+	res.numerator = a.numerator * b.numerator;
+	res.denominator = a.denominator * b.denominator;
+    simplify(&res);
+	return res;
 }
 
 // Pensez à simplifier le résultat.
 struct Rational rdiv(struct Rational a, struct Rational b) {
-	// TODO
+	struct Rational res;
+	res.numerator = a.numerator / b.numerator;
+	res.denominator = a.denominator / b.denominator;
+	simplify(&res);
+	return res;
 }
 
 struct Rational rmax(struct Rational a, struct Rational b) {
@@ -97,5 +113,8 @@ struct Rational rmin(struct Rational a, struct Rational b) {
 }
 
 void print_rational(struct Rational r) {
-	// TODO
+	printf("==================================\n");
+	printf("===== Numérateur : %lld =====\n", r.numerator);
+	printf("===== Dénominateur : %lld =====\n", r.denominator);
+	printf("==================================\n");
 }
