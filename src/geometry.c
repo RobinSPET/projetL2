@@ -1,39 +1,52 @@
-#include "geometry.h"
+#include "../include/rational.h"
+#include "../include/geometry.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 
-#include "rational.h"
 #include "util.h"
 
 struct Point * new_point(struct Rational x, struct Rational y) {
-	// TODO
+	struct Point *p = (Point *)malloc(sizeof(Point));
+
+	if (p == NULL) {
+		perror("Erreur d'allocation mémoire");
+		return 1;
+	}
+
+    p->x = x;
+    p->y = y;
+
+    return p;
 }
 
 struct Rational get_x(const struct Point * p) {
 	assert(p);
-	// TODO
+	return p->x;
 }
 
 struct Rational get_y(const struct Point * p) {
 	assert(p);
-	// TODO
+	return p->y;
 }
 
 void set_x(struct Point * p, struct Rational new_x) {
 	assert(p);
-	// TODO
+	p->x = new_x;
 }
 
 void set_y(struct Point * p, struct Rational new_y) {
 	assert(p);
-	// TODO
+	p->y = new_y;
 }
 
 void print_point(const void * p) {
 	assert(p);
-	// TODO
+	printf("==================================\n");
+	printf("===== abscisse : %lld =====\n", p->x->numerator/p->x->denominator);
+	printf("===== ordonnée : %lld =====\n", p->y->numerator/p->y->denominator);
+	printf("==================================\n");
 }
 
 struct Segment * new_segment(struct Point * endpoint1, struct Point * endpoint2) {
