@@ -48,8 +48,8 @@ void print_point(const void * p) {
 	const struct Point *point = (const struct Point *)p;
 
 	printf("============== Point ==============\n");
-	printf("===== abscisse : %lld =====\n", point->x.numerator/point->x.denominator);
-	printf("===== ordonnée : %lld =====\n", point->y.numerator/point->y.denominator);
+	printf("===== abscisse : %lld =====\n", get_numerator(get_x(point))/get_denominator(get_x(point)));
+	printf("===== ordonnée : %lld =====\n", get_numerator(get_y(point))/get_denominator(get_y(point)));
 	printf("===================================\n");
 }
 
@@ -101,9 +101,9 @@ void print_segment(const void * s) {
     const struct Segment *segment = (const struct Segment *)s;
 
 	printf("============= Segment =============\n");
-	printf("===== endpoint 1 : \n");
+	printf("=========== endpoint 1 : ==========\n");
 	print_point(get_endpoint1(segment));
-	printf("===== endpoint 2 : \n");
+	printf("=========== endpoint 2 : ==========\n");
 	print_point(get_endpoint2(segment));
 	printf("==================================\n");
 }
