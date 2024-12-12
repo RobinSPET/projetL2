@@ -25,13 +25,15 @@ void set_denominator(struct Rational * r, long long new_denominator) {
 }
 
 /**
- * Restitue le Plus Grand Diviseur Commun de \p a et \p b .
+ * Restitue le plus Grand Diviseur Commun de \p a et \p b .
  *
  * @param[in] a
  * @param[in] b
  * @return PGCD(a,b)
  */
 static long long gcd(long long a, long long b) {
+	if (b == 0) perror("gcd: division par 0");
+
     int reste = a % b;
 
     if (reste == 0) return b;
@@ -41,7 +43,13 @@ static long long gcd(long long a, long long b) {
 
 void simplify(struct Rational * r) {
 	assert(r);
-	// TODO
+
+	long long g = gcd(get_numerator(*r), get_denominator(*r));
+
+	if (g == 1 || g == 0) return;
+
+	set_numerator(r, get_numerator(*r) / g);
+	set_denominator(r, get_denominator(*r) / g);
 }
 
 /**
@@ -50,75 +58,81 @@ void simplify(struct Rational * r) {
  * @param[in] *r2
  */
 void toSameDenominator(struct Rational *r1, struct Rational *r2) {
-  	r1->numerator *= r2->denominator;
-    r1->denominator *= r2->denominator;
+	struct Rational * tmp = r1;
 
-    r2->numerator *= r1->numerator;
-    r2->denominator *= r1->denominator;
+  	set_numerator(r1, get_numerator(*r1) * get_denominator(*r2));
+  	set_denominator(r1, get_denominator(*r1) * get_denominator(*r2));
+
+  	set_numerator(r2, get_numerator(*r2) * get_denominator(*tmp));
+  	set_denominator(r2, get_denominator(*r2) * get_denominator(*tmp));
+
+	// Libération mémoire de la variable temporaire
+	free(tmp);
+	tmp = NULL;
 }
 
 int gt(struct Rational a, struct Rational b) {
-	if (a.denominator != b.denominator) {
+	if (get_denominator(a) != get_denominator(b)) {
 		toSameDenominator(&a, &b);
 	}
 
-    if (a.numerator > b.numerator) return 1;
+    if (get_numerator(a) > get_numerator(b)) return 1;
 
     return 0;
 }
 
 int lt(struct Rational a, struct Rational b) {
-	if (a.denominator != b.denominator) {
+	if (get_denominator(a) != get_denominator(b)) {
 		toSameDenominator(&a, &b);
 	}
 
-	if (a.numerator < b.numerator) return 1;
+	if (get_numerator(a) < get_numerator(b)) return 1;
 	return 0;
 }
 
 int gte(struct Rational a, struct Rational b) {
-	if (a.denominator != b.denominator) {
+	if (get_denominator(a) != get_denominator(b)) {
 		toSameDenominator(&a, &b);
 	}
 
-	if (a.numerator >= b.numerator) return 1;
+	if (get_numerator(a) >= get_numerator(b)) return 1;
 	return 0;
 }
 
 int lte(struct Rational a, struct Rational b) {
-	if (a.denominator != b.denominator) {
+	if (get_denominator(a) != get_denominator(b)) {
 		toSameDenominator(&a, &b);
 	}
 
-	if (a.numerator <= b.numerator) return 1;
+	if (get_numerator(a) <= get_numerator(b)) return 1;
 	return 0;
 }
 
 int eq(struct Rational a, struct Rational b) {
-	if (a.denominator != b.denominator) {
+	if (get_denominator(a) != get_denominator(b)) {
 		toSameDenominator(&a, &b);
 	}
 
-	if (a.numerator == b.numerator) return 1;
+	if (get_numerator(a) == get_numerator(b)) return 1;
 	return 0;
 }
 
 int neq(struct Rational a, struct Rational b) {
-	if (a.denominator != b.denominator) {
+	if (get_denominator(a) != get_denominator(b)) {
 		toSameDenominator(&a, &b);
 	}
 
-	if (a.numerator != b.numerator) return 1;
+	if (get_numerator(a) != get_numerator(b)) return 1;
 	return 0;
 }
 
 // Pensez à simplifier le résultat.
 struct Rational radd(struct Rational a, struct Rational b) {
 	struct Rational res;
-    if (a.denominator != b.denominator) toSameDenominator(&a, &b);
+    if (get_denominator(a) != get_denominator(b)) toSameDenominator(&a, &b);
 
-    res.numerator = a.numerator + b.numerator;
-    res.denominator = a.denominator + b.denominator;
+    set_numerator(&res, get_numerator(a) + get_numerator(b));
+    set_denominator(&res, get_denominator(a) + get_denominator(b));
 
     simplify(&res);
   	return res;
@@ -127,10 +141,10 @@ struct Rational radd(struct Rational a, struct Rational b) {
 // Pensez à simplifier le résultat.
 struct Rational rsub(struct Rational a, struct Rational b) {
 	struct Rational res;
-    if (a.denominator != b.denominator) toSameDenominator(&a, &b);
+    if (get_denominator(a) != get_denominator(b)) toSameDenominator(&a, &b);
 
-	res.numerator = a.numerator - b.numerator;
-	res.denominator = a.denominator - b.denominator;
+	set_numerator(&res, get_numerator(a) - get_numerator(b));
+	set_denominator(&res, get_denominator(a) - get_denominator(b));
 
     simplify(&res);
 	return res;
@@ -140,8 +154,8 @@ struct Rational rsub(struct Rational a, struct Rational b) {
 struct Rational rmul(struct Rational a, struct Rational b) {
 	struct Rational res;
 
-	res.numerator = a.numerator * b.numerator;
-	res.denominator = a.denominator * b.denominator;
+	set_numerator(&res, get_numerator(a) * get_numerator(b));
+	set_denominator(&res, get_denominator(a) * get_denominator(b));
 
     simplify(&res);
 	return res;
@@ -151,30 +165,30 @@ struct Rational rmul(struct Rational a, struct Rational b) {
 struct Rational rdiv(struct Rational a, struct Rational b) {
 	struct Rational res;
 
-	res.numerator = a.numerator / b.numerator;
-	res.denominator = a.denominator / b.denominator;
+	struct Rational bReverted;
+	set_numerator(&bReverted, get_denominator(b));
+	set_denominator(&bReverted, get_numerator(b));
 
-	simplify(&res);
-	return res;
+	return rmul(a, bReverted);
 }
 
 struct Rational rmax(struct Rational a, struct Rational b) {
-	if (a.denominator != b.denominator) toSameDenominator(&a, &b);
+	if (get_denominator(a) != get_denominator(b)) toSameDenominator(&a, &b);
 
-    if (a.numerator > b.numerator) return a;
+    if (gt(a, b)) return a;
     return b;
 }
 
 struct Rational rmin(struct Rational a, struct Rational b) {
-	if (a.denominator != b.denominator) toSameDenominator(&a, &b);
+	if (get_denominator(a) != get_denominator(b)) toSameDenominator(&a, &b);
 
-	if (a.numerator < b.numerator) return a;
+	if (lt(a, b)) return a;
 	return b;
 }
 
 void print_rational(struct Rational r) {
 	printf("==================================\n");
-	printf("===== Numérateur : %lld =====\n", r.numerator);
-	printf("===== Dénominateur : %lld =====\n", r.denominator);
+	printf("===== Numérateur : %lld =====\n", get_numerator(r));
+	printf("===== Dénominateur : %lld =====\n", get_denominator(r));
 	printf("==================================\n");
 }
