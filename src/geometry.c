@@ -1,75 +1,111 @@
-#include "geometry.h"
+#include "../include/rational.h"
+#include "../src/rational.c"
+#include "../include/geometry.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 
-#include "rational.h"
 #include "util.h"
 
+
 struct Point * new_point(struct Rational x, struct Rational y) {
-	// TODO
+	struct Point *p = (struct Point *)malloc(sizeof(struct Point));
+
+	if (p == NULL) {
+		perror("Erreur d'allocation mémoire");
+		return 1;
+	}
+
+    p->x = x;
+    p->y = y;
+
+    return p;
 }
 
 struct Rational get_x(const struct Point * p) {
 	assert(p);
-	// TODO
+	return p->x;
 }
 
 struct Rational get_y(const struct Point * p) {
 	assert(p);
-	// TODO
+	return p->y;
 }
 
 void set_x(struct Point * p, struct Rational new_x) {
 	assert(p);
-	// TODO
+	p->x = new_x;
 }
 
 void set_y(struct Point * p, struct Rational new_y) {
 	assert(p);
-	// TODO
+	p->y = new_y;
 }
 
 void print_point(const void * p) {
 	assert(p);
-	// TODO
+	const struct Point *point = (const struct Point *)p;
+
+	printf("============== Point ==============\n");
+	printf("===== abscisse : %lld =====\n", get_numerator(get_x(point))/get_denominator(get_x(point)));
+	printf("===== ordonnée : %lld =====\n", get_numerator(get_y(point))/get_denominator(get_y(point)));
+	printf("===================================\n");
 }
 
 struct Segment * new_segment(struct Point * endpoint1, struct Point * endpoint2) {
-	// TODO
+	struct Segment *s = (struct Segment *)malloc(sizeof(struct Segment));
+
+	if (s == NULL) {
+		perror("Erreur d'allocation mémoire");
+		return 1;
+	}
+
+	s->endpoint1 = endpoint1;
+	s->endpoint2 = endpoint2;
+
+	return s;
 }
 
 void free_segment(void * s) {
 	assert(s);
-	// TODO
+
+	free(s);
+	s = NULL;
 }
 
 struct Point * get_endpoint1(const struct Segment * s) {
 	assert(s);
-	// TODO
+	return s->endpoint1;
 }
 
 struct Point * get_endpoint2(const struct Segment * s) {
 	assert(s);
-	// TODO
+	return s->endpoint2;
 }
 
 void set_endpoint1(struct Segment * s, struct Point * new_endpoint) {
 	assert(s);
 	assert(new_endpoint);
-	// TODO
+	s->endpoint1 = new_endpoint;
 }
 
 void set_endpoint2(struct Segment * s, struct Point * new_endpoint) {
 	assert(s);
 	assert(new_endpoint);
-	// TODO
+	s->endpoint2 = new_endpoint;
 }
 
 void print_segment(const void * s) {
 	assert(s);
-	// TODO
+    const struct Segment *segment = (const struct Segment *)s;
+
+	printf("============= Segment =============\n");
+	printf("=========== endpoint 1 : ==========\n");
+	print_point(get_endpoint1(segment));
+	printf("=========== endpoint 2 : ==========\n");
+	print_point(get_endpoint2(segment));
+	printf("==================================\n");
 }
 
 int point_precedes(const void * p1, const void * p2) {
