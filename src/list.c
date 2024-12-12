@@ -160,6 +160,8 @@ void view_list(const struct list_t * L, void (*viewData)(const void *)) {
 void list_insert_first(struct list_t * L, void * data) {
 	assert(L);
 	struct list_node_t *new_node = new_list_node(data);
+    new_node->predecessor = NULL;
+
     if (L->head) {
         new_node->successor = L->head;
         L->head->predecessor = new_node;
@@ -167,15 +169,19 @@ void list_insert_first(struct list_t * L, void * data) {
         L->tail = new_node; 
     }
     L->head = new_node;
+    
     increase_list_size(L);
 }
 
 void list_insert_last(struct list_t * L, void * data) {
 	assert(L);
 	struct list_node_t *new_node = new_list_node(data);
+    new_node->successor = NULL;
+
     if (L->tail) {
         new_node->predecessor = L->tail;
         L->tail->successor = new_node;
+
     } else {
         L->head = new_node; 
     }
@@ -187,8 +193,9 @@ void list_insert_after(struct list_t * L, void * data, struct list_node_t * node
 	assert(L);
 	assert(node);
 	struct list_node_t *new_node = new_list_node(data);
-    new_node->successor = node->successor;
+
     new_node->predecessor = node;
+    new_node->successor = node->successor;
 
     if (node->successor) {
         node->successor->predecessor = new_node;
@@ -201,60 +208,71 @@ void list_insert_after(struct list_t * L, void * data, struct list_node_t * node
 
 void * list_remove_first(struct list_t * L) {
 	assert(L);
-	assert(get_list_head(L) && get_list_tail(L));
-	struct list_node_t *old_head = L->head;
-    void *data = old_head->data;
-
-    L->head = old_head->successor;
-    if (L->head) {
-        L->head->predecessor = NULL;
-    } else {
-        L->tail = NULL; 
+	
+    if (!L->head) {
+        fprintf(stderr, "Erreur de tentative de suppression dans une liste vide\n");
+        return NULL;
     }
-    free(old_head);
-    decrease_list_size(L);
 
-    return data;
+    struct list_node_t *old_head = L->head; 
+    void *data = old_head->data;           
+
+    L->head = old_head->successor;         
+
+    if (L->head) {
+        L->head->predecessor = NULL;       
+    } else {
+        L->tail = NULL;                    
+    }
+
+    free(old_head);                        
+    decrease_list_size(L);                 
+
+    return data;                           
 }
 
 void * list_remove_last(struct list_t * L) {
 	assert(L);
-	assert(get_list_head(L) && get_list_tail(L));
-	struct list_node_t *old_tail = L->tail;
-    void *data = old_tail->data;
 
-    L->tail = old_tail->predecessor;
-    if (L->tail) {
-        L->tail->successor = NULL;
-    } else {
-        L->head = NULL; 
+	if (!L->tail) {
+        fprintf(stderr, "Erreur de tentative de suppression dans une liste vide\n");
+        return NULL;
     }
-    free(old_tail);
-    decrease_list_size(L);
 
-    return data;
-}
+    struct list_node_t *old_tail = L->tail; 
+    void *data = old_tail->data;           
+
+    L->tail = old_tail->predecessor;       
+
+    if (L->tail) {
+        L->tail->successor = NULL;         
+    } else {
+        L->head = NULL;                    
+    }
+
 
 void * list_remove_node(struct list_t * L, struct list_node_t * node) {
 	assert(L);
-	assert(get_list_head(L) && get_list_tail(L));
-	if (node->predecessor) {
-        node->predecessor->successor = node->successor;
+	assert(node);
+
+    if (node->predecessor) {
+        node->predecessor->successor = node->successor; 
     } else {
-        L->head = node->successor;
+        L->head = node->successor; 
     }
 
     if (node->successor) {
-        node->successor->predecessor = node->predecessor;
+        node->successor->predecessor = node->predecessor; 
     } else {
         L->tail = node->predecessor; 
     }
 
     void *data = node->data;
-    free(node);
-    decrease_list_size(L);
+    free(node);              
+    decrease_list_size(L);   
 
-    return data;
+    return data;             
+}
 }
 
 struct list_node_t * list_find_node(struct list_t * L, void * data) {
