@@ -18,13 +18,13 @@
  * @return le nouveau nœud créé
  */
 static struct list_node_t * new_list_node(void * data) {
-	// Allouer la mémoire pour le nouveau nœud
+	
     struct list_node_t *node = malloc(sizeof(struct list_node_t));
     if (!node) {
         fprintf(stderr, "Erreur d'allocation mémoire\n");
         exit(EXIT_FAILURE);
     }
-	// Initialiser les champs du nœud
+	
     node->data = data;
     node->successor = NULL;
     node->predecessor = NULL;
@@ -33,33 +33,33 @@ static struct list_node_t * new_list_node(void * data) {
 }
 
 void *get_list_node_data(const struct list_node_t *node) {
-    assert(node); // Vérifie que le pointeur est non nul
+    assert(node); 
     return node->data;
 }
 
 struct list_node_t *get_successor(const struct list_node_t *node) {
-    assert(node); // Vérifie que le pointeur est non nul
+    assert(node); 
     return node->successor;
 }
 
 struct list_node_t *get_predecessor(const struct list_node_t *node) {
-    assert(node); // Vérifie que le pointeur est non nul
+    assert(node); 
     return node->predecessor;
 }
 
 void set_list_node_data(struct list_node_t *node, void *new_data) {
-    assert(node); // Vérifie que le pointeur est non nul
-    node->data = new_data; // Met à jour le champ 'data'
+    assert(node); 
+    node->data = new_data; 
 }
 
 void set_successor(struct list_node_t *node, struct list_node_t *new_successor) {
-    assert(node); // Vérifie que le pointeur est non nul
-    node->successor = new_successor; // Met à jour le champ 'successor'
+    assert(node); 
+    node->successor = new_successor; 
 }
 
 void set_predecessor(struct list_node_t *node, struct list_node_t *new_predecessor) {
-    assert(node); // Vérifie que le pointeur est non nul
-    node->predecessor = new_predecessor; // Met à jour le champ 'predecessor'
+    assert(node); 
+    node->predecessor = new_predecessor; 
 }
 
 /********************************************************************
@@ -138,21 +138,21 @@ void delete_list(struct list_t * L, void (*freeData)(void *)) {
         next = current->successor;
 
         if (freeData) {
-            freeData(current->data); // Libère les données du nœud si nécessaire
+            freeData(current->data);
         }
 
-        free(current); // Libère le nœud
+        free(current); 
         current = next;
     }
 
-    free(L); // Libère la structure de la liste
+    free(L); 
 }
 
 void view_list(const struct list_t * L, void (*viewData)(const void *)) {
 	assert(L);
 	struct list_node_t *current = L->head;
     while (current) {
-        viewData(current->data); // Applique la fonction de visualisation aux données
+        viewData(current->data); 
         current = current->successor;
     }
 }
@@ -164,7 +164,7 @@ void list_insert_first(struct list_t * L, void * data) {
         new_node->successor = L->head;
         L->head->predecessor = new_node;
     } else {
-        L->tail = new_node; // Si la liste était vide, le nouvel élément devient aussi la queue
+        L->tail = new_node; 
     }
     L->head = new_node;
     increase_list_size(L);
@@ -177,7 +177,7 @@ void list_insert_last(struct list_t * L, void * data) {
         new_node->predecessor = L->tail;
         L->tail->successor = new_node;
     } else {
-        L->head = new_node; // Si la liste était vide, le nouvel élément devient aussi la tête
+        L->head = new_node; 
     }
     L->tail = new_node;
     increase_list_size(L);
@@ -193,7 +193,7 @@ void list_insert_after(struct list_t * L, void * data, struct list_node_t * node
     if (node->successor) {
         node->successor->predecessor = new_node;
     } else {
-        L->tail = new_node; // Si le nœud donné est la queue, met à jour la queue
+        L->tail = new_node; 
     }
     node->successor = new_node;
     increase_list_size(L);
@@ -209,7 +209,7 @@ void * list_remove_first(struct list_t * L) {
     if (L->head) {
         L->head->predecessor = NULL;
     } else {
-        L->tail = NULL; // Si la liste devient vide, met aussi à jour la queue
+        L->tail = NULL; 
     }
     free(old_head);
     decrease_list_size(L);
@@ -227,7 +227,7 @@ void * list_remove_last(struct list_t * L) {
     if (L->tail) {
         L->tail->successor = NULL;
     } else {
-        L->head = NULL; // Si la liste devient vide, met aussi à jour la tête
+        L->head = NULL; 
     }
     free(old_tail);
     decrease_list_size(L);
@@ -241,13 +241,13 @@ void * list_remove_node(struct list_t * L, struct list_node_t * node) {
 	if (node->predecessor) {
         node->predecessor->successor = node->successor;
     } else {
-        L->head = node->successor; // Si c'est la tête, met à jour la tête
+        L->head = node->successor;
     }
 
     if (node->successor) {
         node->successor->predecessor = node->predecessor;
     } else {
-        L->tail = node->predecessor; // Si c'est la queue, met à jour la queue
+        L->tail = node->predecessor; 
     }
 
     void *data = node->data;
@@ -261,18 +261,18 @@ struct list_node_t * list_find_node(struct list_t * L, void * data) {
 	assert(L);
 	struct list_node_t *current = L->head;
     while (current) {
-        if (current->data == data) { // Vérifie si la donnée correspond (même si elle est NULL)
-            return current; // Retourne le nœud trouvé
+        if (current->data == data) { 
+            return current; 
         }
-        current = current->successor; // Passe au nœud suivant
+        current = current->successor; 
     }
-    return NULL; // Retourne NULL si la donnée n'est pas trouvée
+    return NULL;
 }
 
 void list_swap_nodes_data(struct list_node_t * node1, struct list_node_t * node2) {
 	assert(node1);
 	assert(node2);
-	// Échange les données entre les deux nœuds
+	
     void *temp = node1->data;
     node1->data = node2->data;
     node2->data = temp;
