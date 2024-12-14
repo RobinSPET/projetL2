@@ -18,37 +18,48 @@
  * @return le nouveau nœud créé
  */
 static struct list_node_t * new_list_node(void * data) {
-	// TODO
+	
+    struct list_node_t *node = malloc(sizeof(struct list_node_t));
+    if (!node) {
+        fprintf(stderr, "Erreur d'allocation mémoire\n");
+        exit(EXIT_FAILURE);
+    }
+	
+    node->data = data;
+    node->successor = NULL;
+    node->predecessor = NULL;
+
+    return node;
 }
 
-void * get_list_node_data(const struct list_node_t * node) {
-	assert(node);
-	// TODO
+void *get_list_node_data(const struct list_node_t *node) {
+    assert(node); 
+    return node->data;
 }
 
-struct list_node_t * get_successor(const struct list_node_t* node) {
-	assert(node);
-	// TODO
+struct list_node_t *get_successor(const struct list_node_t *node) {
+    assert(node); 
+    return node->successor;
 }
 
-struct list_node_t * get_predecessor(const struct list_node_t * node) {
-	assert(node);
-	// TODO
+struct list_node_t *get_predecessor(const struct list_node_t *node) {
+    assert(node); 
+    return node->predecessor;
 }
 
-void set_list_node_data(struct list_node_t * node, void * new_data) {
-	assert(node);
-	// TODO
+void set_list_node_data(struct list_node_t *node, void *new_data) {
+    assert(node); 
+    node->data = new_data; 
 }
 
-void set_successor(struct list_node_t * node, struct list_node_t * new_successor) {
-	assert(node);
-	// TODO
+void set_successor(struct list_node_t *node, struct list_node_t *new_successor) {
+    assert(node); 
+    node->successor = new_successor; 
 }
 
-void set_predecessor(struct list_node_t * node, struct list_node_t * new_predecessor) {
-	assert(node);
-	// TODO
+void set_predecessor(struct list_node_t *node, struct list_node_t *new_predecessor) {
+    assert(node); 
+    node->predecessor = new_predecessor; 
 }
 
 /********************************************************************
