@@ -67,62 +67,94 @@ void set_predecessor(struct list_node_t *node, struct list_node_t *new_predecess
  ********************************************************************/
 
 struct list_t * new_list() {
-	// TODO
+	struct list_t *L = malloc(sizeof(struct list_t));
+    if (!L) {
+        fprintf(stderr, "Erreur : Échec de l'allocation mémoire pour la liste\n");
+        exit(EXIT_FAILURE);
+    }
+
+    L->head = NULL;
+    L->tail = NULL;
+    L->size = 0;
+
+    return L;
 }
 
 int list_is_empty(const struct list_t * L) {
 	assert(L);
-	// TODO
+	return (L->size == 0);
 }
 
 unsigned int get_list_size(const struct list_t * L) {
 	assert(L);
-	// TODO
+	return L->size;
 }
 
 struct list_node_t * get_list_head(const struct list_t * L) {
 	assert(L);
-	// TODO
+	return L->head;
 }
 
 struct list_node_t * get_list_tail(const struct list_t * L) {
 	assert(L);
-	// TODO
+	return L->tail;
 }
 
 void increase_list_size(struct list_t * L) {
 	assert(L);
-	// TODO
+	L->size++;
 }
 
 void decrease_list_size(struct list_t * L) {
 	assert(L);
-	// TODO
+	if (L->size > 0) {
+        L->size--;
+    } else {
+        fprintf(stderr, "Erreur : Impossible de réduire une liste de taille nulle\n");
+    }
 }
 
 void set_list_size(struct list_t * L, unsigned int new_size) {
 	assert(L);
-	// TODO
+	L->size = new_size;
 }
 
 void set_list_head(struct list_t * L, struct list_node_t * new_head) {
 	assert(L);
-	// TODO
+	L->head = new_head;
 }
 
 void set_list_tail(struct list_t * L, struct list_node_t * new_tail) {
 	assert(L);
-	// TODO
+	L->tail = new_tail;
 }
 
 void delete_list(struct list_t * L, void (*freeData)(void *)) {
 	assert(L);
-	// TODO
+	struct list_node_t *current = L->head;
+    struct list_node_t *next;
+
+    while (current) {
+        next = current->successor;
+
+        if (freeData) {
+            freeData(current->data);
+        }
+
+        free(current); 
+        current = next;
+    }
+
+    free(L); 
 }
 
 void view_list(const struct list_t * L, void (*viewData)(const void *)) {
 	assert(L);
-	// TODO
+	struct list_node_t *current = L->head;
+    while (current) {
+        viewData(current->data); 
+        current = current->successor;
+    }
 }
 
 void list_insert_first(struct list_t * L, void * data) {
