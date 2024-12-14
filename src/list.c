@@ -159,18 +159,49 @@ void view_list(const struct list_t * L, void (*viewData)(const void *)) {
 
 void list_insert_first(struct list_t * L, void * data) {
 	assert(L);
-	// TODO
+	struct list_node_t *new_node = new_list_node(data);
+    new_node->predecessor = NULL;
+
+    if (L->head) {
+        new_node->successor = L->head;
+        L->head->predecessor = new_node;
+    } 
+    L->head = new_node;
+    
+    increase_list_size(L);
 }
 
 void list_insert_last(struct list_t * L, void * data) {
 	assert(L);
-	// TODO
+	struct list_node_t *new_node = new_list_node(data);
+    new_node->successor = NULL;
+
+    if (L->tail) {
+        new_node->predecessor = L->tail;
+        L->tail->successor = new_node;
+
+    } else {
+        L->head = new_node; 
+    }
+    L->tail = new_node;
+    increase_list_size(L);
 }
 
 void list_insert_after(struct list_t * L, void * data, struct list_node_t * node) {
 	assert(L);
 	assert(node);
-	// TODO
+	struct list_node_t *new_node = new_list_node(data);
+
+    new_node->predecessor = node;
+    new_node->successor = node->successor;
+
+    if (node->successor) {
+        node->successor->predecessor = new_node;
+    } else {
+        L->tail = new_node; 
+    }
+    node->successor = new_node;
+    increase_list_size(L);
 }
 
 void * list_remove_first(struct list_t * L) {
