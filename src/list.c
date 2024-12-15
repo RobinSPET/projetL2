@@ -259,11 +259,22 @@ void * list_remove_node(struct list_t * L, struct list_node_t * node) {
 
 struct list_node_t * list_find_node(struct list_t * L, void * data) {
 	assert(L);
-	// TODO
+	struct list_node_t *current = L->head;
+    
+    while (current) {
+        if (current->data == data) { 
+            return current; 
+        }
+        current = current->successor; 
+    }
+    return NULL;
 }
 
 void list_swap_nodes_data(struct list_node_t * node1, struct list_node_t * node2) {
 	assert(node1);
 	assert(node2);
-	// TODO
+	
+    void *temp = node1->data;
+    node1->data = node2->data;
+    node2->data = temp;
 }
