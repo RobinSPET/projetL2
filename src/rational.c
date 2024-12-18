@@ -58,17 +58,16 @@ void simplify(struct Rational * r) {
  * @param[in] *r2
  */
 void toSameDenominator(struct Rational *r1, struct Rational *r2) {
-	struct Rational * tmp = r1;
+	struct Rational tmp = *r1;
 
   	set_numerator(r1, get_numerator(*r1) * get_denominator(*r2));
   	set_denominator(r1, get_denominator(*r1) * get_denominator(*r2));
 
-  	set_numerator(r2, get_numerator(*r2) * get_denominator(*tmp));
-  	set_denominator(r2, get_denominator(*r2) * get_denominator(*tmp));
+  	set_numerator(r2, get_numerator(*r2) * get_denominator(tmp));
+  	set_denominator(r2, get_denominator(*r2) * get_denominator(tmp));
 
 	// Libération mémoire de la variable temporaire
-	free(tmp);
-	tmp = NULL;
+	free(&tmp);
 }
 
 int gt(struct Rational a, struct Rational b) {

@@ -238,34 +238,23 @@ struct Point * get_intersection_point(const struct Segment * s1, const struct Se
 	struct Point * B = get_endpoint2(s1);
 	struct Point * C = get_endpoint1(s2);
 	struct Point * D = get_endpoint2(s2);
-	struct Point * P;
 
-	struct Rational a1 = rsub(get_y(B), get_y(A));
-	struct Rational b1 = rsub(get_x(A), get_x(B));
-	struct Rational c1 = radd(rmul(a1, get_x(A)), rmul(b1, get_y(A)));
+	if (do_intersect(s1, s2) != 1) return NULL;
 
-	struct Rational a2 = rsub(get_y(D), get_y(C));
-	struct Rational b2 = rsub(get_x(C), get_x(D));
-	struct Rational c2 = radd(rmul(a2, get_x(C)), rmul(b2, get_y(C)));
+	struct Rational determinant = rsub(rmul(rsub(get_x(B), get_x(A)), rsub(get_y(D), get_y(C))), rmul(rsub(get_y(B), get_y(A)), rsub(get_x(D), get_x(C))));
 
-	struct Rational determinant = rsub(rmul(a1, b2), rmul(a2, b1));
+	struct Rational t = rdiv( rsub( rmul( rsub(get_x(C), get_x(A)), rsub(get_y(D), get_y(C))), rmul( rsub(get_y(C), get_y(A)), rsub( get_x(D), get_x(C)))), determinant);
+	struct Rational u = rdiv( rsub( rmul( rsub(get_x(C), get_x(A)), rsub(get_y(B), get_y(A))), rmul( rsub(get_y(C), get_y(A)), rsub( get_x(B), get_x(A)))), determinant);
 
-	// Si le déterminant est 0, les segments sont parallèles ou colinéaires
-	if (get_numerator(determinant)/get_denominator(determinant) == 0) {
-		return NULL;
+	struct Rational test0 = {0, 0};
+	struct Rational test1 = {1, 1};
+
+	if (lte(test0, t) && gte(t, test1) && lte(test0, u) && gte(u, test1)) {
+		struct Rational x = rmul(radd(get_x(A), t), rsub(get_x(B), get_x(A)));
+		struct Rational y = rmul(radd(get_y(A), t), rsub(get_y(B), get_y(A)));
+
+		return new_point(x, y);
 	}
-
-	// Calcul de l'intersection
-	set_x(P, rdiv(rsub(rmul(b2, c1), rmul(b1, c2)), determinant));
-	set_y(P, rdiv(rsub(rmul(a1, c2), rmul(a2, c1)), determinant));
-
-	// Vérification si le point d'intersection est sur les deux segments
-	if (gte(P->x, rmin(get_x(A), get_x(B))) && lte(P->x, rmax(get_x(A), get_x(B))) &&
-		gte(P->y, rmin(get_y(A), get_y(B))) && lte(P->y, rmax(get_y(A), get_y(B))) &&
-		gte(P->x, rmin(get_x(C), get_x(D))) && lte(P->x, rmax(get_x(C), get_x(D))) &&
-		gte(P->y, rmin(get_y(C), get_y(D))) && lte(P->y, rmax(get_y(C), get_y(D)))) {
-		return &P;
-		}
 
 	return NULL;
 }
