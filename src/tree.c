@@ -19,7 +19,7 @@
  * @return le nouveau nœud créé
  */
 static struct tree_node_t * new_tree_node(void * key, void * data) {
-	struct tree_node_t *t = (struct Point *)malloc(sizeof(struct tree_node_t));
+	struct tree_node_t *t = (struct tree_node_t *)malloc(sizeof(struct tree_node_t));
 
 	if (t == NULL) {
 		perror("Erreur d'allocation mémoire");
