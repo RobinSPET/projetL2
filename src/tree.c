@@ -19,47 +19,59 @@
  * @return le nouveau nœud créé
  */
 static struct tree_node_t * new_tree_node(void * key, void * data) {
-	// TODO
+	struct tree_node_t *t = (struct Point *)malloc(sizeof(struct tree_node_t));
+
+	if (t == NULL) {
+		perror("Erreur d'allocation mémoire");
+		return NULL;
+	}
+
+    t->key = key;
+    t->data = data;
+	t->left = NULL;
+	t->right = NULL;
+
+    return t;
 }
 
 void * get_tree_node_key(const struct tree_node_t * node) {
 	assert(node);
-	// TODO
+	return node->key;
 }
 
 void * get_tree_node_data(const struct tree_node_t * node) {
 	assert(node);
-	// TODO
+	return node->data;
 }
 
 struct tree_node_t * get_left(const struct tree_node_t * node) {
 	assert(node);
-	// TODO
+	return node->left;
 }
 
 struct tree_node_t * get_right(const struct tree_node_t * node) {
 	assert(node);
-	// TODO
+	return node->right;
 }
 
 void set_tree_node_key(struct tree_node_t * node, void * new_key) {
 	assert(node);
-	// TODO
+	node->key = new_key;
 }
 
 void set_tree_node_data(struct tree_node_t * node, void * new_data) {
 	assert(node);
-	// TODO
+	node->data = new_data;
 }
 
 void set_left(struct tree_node_t * node, struct tree_node_t * new_left) {
 	assert(node);
-	// TODO
+	node->left = new_left;
 }
 
 void set_right(struct tree_node_t * node, struct tree_node_t * new_right) {
 	assert(node);
-	// TODO
+	node->right = new_right;
 }
 
 /*********************************************************************
