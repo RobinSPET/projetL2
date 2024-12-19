@@ -15,16 +15,23 @@
 // qui précède sur le membre endpoint1 de la struct Segment, tandis que l'autre
 // point sur le membre endpoint2 de la struct Segment.
 struct list_t * load_segments(const char * input_filename) {
-	// TODO
-}
+    FILE *file = fopen(input_filename, "r");
+    if (!file) { // si le fichier n'a pas pu etre ouvert
+        fprintf(stderr, "le fichier est impossible à ouvrir %s\n", input_filename);
+        return NULL;
+    }
 
-void save_intersections(const char * output_filename, const struct list_t * intersections) {
-	// TODO
-}
+    struct list_t *segment_list = list_create();
+    assert(segment_list != NULL);
 
-struct list_t * all_pairs(const struct list_t * segments) {
-	assert(segments);
-	// TODO
+    int x1, y1, x2, y2;
+    while (fscanf(file, "%d/%d %d/%d", &x1, &y1, &x2, &y2) == 4) {
+        Segment s = create_segment(x1, y1, x2, y2);
+        list_push_back(segment_list, &s, sizeof(Segment));
+    }
+
+    fclose(file);
+    return segment_list;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
