@@ -67,37 +67,44 @@ void set_right(struct tree_node_t * node, struct tree_node_t * new_right) {
  *********************************************************************/
 
 struct tree_t * new_tree() {
-	// TODO
+	struct tree_t *t = (struct Point *)malloc(sizeof(struct tree_t));
+
+	if (t == NULL) {
+		perror("Erreur d'allocation mémoire");
+		return NULL;
+	}
+
+    return t;
 }
 
 int tree_is_empty(const struct tree_t * T) {
 	assert(T);
-	// TODO
+	return T->root == NULL;
 }
 
 unsigned int get_tree_size(const struct tree_t * T) {
 	assert(T);
-	// TODO
+	return T->size;
 }
 
 struct tree_node_t * get_root(const struct tree_t * T) {
 	assert(T);
-	// TODO
+	return T->root;
 }
 
 void increase_tree_size(struct tree_t * T) {
 	assert(T);
-	// TODO
+	T->size++;
 }
 
 void decrease_tree_size(struct tree_t * T) {
 	assert(T);
-	// TODO
+	T->size--;
 }
 
 void set_root(struct tree_t * T, struct tree_node_t * new_root) {
 	assert(T);
-	// TODO
+	T->root = new_root;
 }
 
 /**
@@ -131,13 +138,12 @@ void delete_tree(struct tree_t * T, void (*freeKey)(void *), void (*freeData)(vo
  * @param[in] viewData 
  */
 static void view_tree_inorder(struct tree_node_t * curr, void (*viewKey)(const void *), void (*viewData)(const void *)) {
-	// TODO
+	
 }
 
 // NB : Utiliser la procédure récursive view_tree_inorder.
 void view_tree(const struct tree_t * T, void (*viewKey)(const void * key), void (*viewData)(const void * data)) {
 	assert(T);
-	// TODO
 }
 
 /**
