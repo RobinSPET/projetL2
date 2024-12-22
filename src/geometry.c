@@ -14,7 +14,7 @@ struct Point * new_point(struct Rational x, struct Rational y) {
 
 	if (p == NULL) {
 		perror("Erreur d'allocation mémoire");
-		return 1;
+		return NULL;
 	}
 
     p->x = x;
@@ -58,7 +58,7 @@ struct Segment * new_segment(struct Point * endpoint1, struct Point * endpoint2)
 
 	if (s == NULL) {
 		perror("Erreur d'allocation mémoire");
-		return 1;
+		return NULL;
 	}
 
 	s->endpoint1 = endpoint1;
@@ -159,6 +159,18 @@ static int get_orientation(const struct Point * p, const struct Point * q, const
 		return -1;
 }
 
+int min(int a, int b) {
+	assert(a);
+	assert(b);
+	return (a < b) ? a : b;
+}
+
+int max(int a, int b) {
+	assert(a);
+	assert(b);
+	return (a > b) ? a : b;
+}
+
 /**
  * Vérifie si le point \p q est inclus dans le carré défini par les points \p p et \p r .
  * Si \p p , \p q , \p r sont colinéaires, alors \p q se trouve dans le segment [\p p, \p r ].
@@ -222,5 +234,27 @@ struct Point * get_intersection_point(const struct Segment * s1, const struct Se
 	assert(s1);
 	assert(s2);
 
-	// TODO
+	struct Point * A = get_endpoint1(s1);
+	struct Point * B = get_endpoint2(s1);
+	struct Point * C = get_endpoint1(s2);
+	struct Point * D = get_endpoint2(s2);
+
+	if (do_intersect(s1, s2) != 1) return NULL;
+
+	struct Rational determinant = rsub(rmul(rsub(get_x(B), get_x(A)), rsub(get_y(D), get_y(C))), rmul(rsub(get_y(B), get_y(A)), rsub(get_x(D), get_x(C))));
+
+	struct Rational t = rdiv( rsub( rmul( rsub(get_x(C), get_x(A)), rsub(get_y(D), get_y(C))), rmul( rsub(get_y(C), get_y(A)), rsub( get_x(D), get_x(C)))), determinant);
+	struct Rational u = rdiv( rsub( rmul( rsub(get_x(C), get_x(A)), rsub(get_y(B), get_y(A))), rmul( rsub(get_y(C), get_y(A)), rsub( get_x(B), get_x(A)))), determinant);
+
+	struct Rational test0 = {0, 0};
+	struct Rational test1 = {1, 1};
+
+	if (lte(test0, t) && gte(t, test1) && lte(test0, u) && gte(u, test1)) {
+		struct Rational x = rmul(radd(get_x(A), t), rsub(get_x(B), get_x(A)));
+		struct Rational y = rmul(radd(get_y(A), t), rsub(get_y(B), get_y(A)));
+
+		return new_point(x, y);
+	}
+
+	return NULL;
 }
