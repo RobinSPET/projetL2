@@ -154,13 +154,32 @@ void view_tree(const struct tree_t * T, void (*viewKey)(const void * key), void 
  */
 static void insert_tree_node(struct tree_node_t ** curr, void * key, void * data,
 							int (*precedes)(const void *, const void *)) {
-	// TODO
+	if (*curr == NULL) {
+        *curr = (struct tree_node_t *)malloc(sizeof(struct tree_node_t));
+        if (*curr == NULL) {
+            perror("Erreur pour l'alloc mémoire");
+            return;
+        }
+    
+        (*curr)->key = key;
+        (*curr)->data = data;
+        (*curr)->left = NULL;
+        (*curr)->right = NULL;
+        return;
+    }
+
+    if (precedes(key, (*curr)->key)) {
+        insert_tree_node(&(*curr)->left, key, data, precedes);
+    } else {
+        insert_tree_node(&(*curr)->right, key, data, precedes);
+    }
 }
 
 // NB : Utiliser la fonction récursive insert_tree_node.
 void tree_insert(struct tree_t * T, void * key, void * data, int (*precedes)(const void * a, const void * b)) {
 	assert(T);
-	// TODO
+    insert_tree_node(&(T->root), key, data, precedes);
+    T->size++; //augmenter la taille du arbre 
 }
 
 struct tree_node_t * tree_find_min(struct tree_node_t * curr) {
