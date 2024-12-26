@@ -26,12 +26,12 @@ static struct tree_node_t * new_tree_node(void * key, void * data) {
 		return NULL;
 	}
 
-    t->key = key;
-    t->data = data;
+  t->key = key;
+  t->data = data;
 	t->left = NULL;
 	t->right = NULL;
 
-    return t;
+  return t;
 }
 
 void * get_tree_node_key(const struct tree_node_t * node) {
