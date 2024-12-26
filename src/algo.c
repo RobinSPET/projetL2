@@ -34,6 +34,33 @@ struct list_t * load_segments(const char * input_filename) {
     return segment_list;
 }
 
+// Ranger dans un fichier texte de nom output_filename les points d'intersection qui sont contenus dans la liste intersections.
+
+void save_intersections ( const char * output_filename , const struct list_t * intersections ) ;{
+    
+    FILE *file = fopen(output_filename, "w"); //ouverture fichier
+    if (!file) {
+        perror("Erreur lors de l'ouverture du fichier");
+        return;
+    }
+
+    struct list_node_t *current_node = intersections->head;
+    while (current_node) {
+        struct Point *point = (struct Point *)get_list_node_data(current_node);
+
+        struct Rational x = get_x(point);
+        struct Rational y = get_y(point);
+
+        fprintf(file, "%lld/%lld,%lld/%lld\n",
+                x.numerator, x.denominator,
+                y.numerator, y.denominator);
+
+        current_node = get_successor(current_node);
+    }
+    fclose(file);
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////
 //////////////////// ALGORITHME DE Bentley-Ottmann ///////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
