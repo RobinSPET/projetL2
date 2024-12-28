@@ -169,7 +169,10 @@ static void view_tree_inorder(struct tree_node_t * curr, void (*viewKey)(const v
 	}
 
 	view_tree_inorder(get_left(curr), viewKey, viewData);
-	printf("KEY : " + viewKey(curr) + "\n DATA : " + viewData(curr));
+	printf("KEY : ");
+	viewKey(curr);
+	printf("\n DATA : ");
+	viewData(curr);
 	view_tree_inorder(get_right(curr), viewKey, viewData);
 }
 
@@ -225,20 +228,36 @@ struct tree_node_t * tree_find_node(struct tree_node_t * curr, const void * key,
 	if (precedes(get_tree_node_key(curr), key) == 0) {
 		return curr;
 	} else if (precedes(get_tree_node_key(curr), key) == -1) {
-		return tree_find_node(get_left(curr));
+		return tree_find_node(get_left(curr), key, precedes);
 	} else {
-		return tree_find_node(get_right(curr));
+		return tree_find_node(get_right(curr), key, precedes);
 	}
 }
 
 struct tree_node_t * tree_find_predecessor(struct tree_node_t * curr, const void * key, int (*precedes)(const void *, const void *)) {
-	assert(curr);
-	// TODO
+	assert(curr); // évite d'exécuter la fonction sur un noeud inexistant (si on est à une extrémité de l'arbre par exemple)
+
+	if (precedes(curr->key, key)) return get_left(curr); // On trouve le noeud key
+
+	struct tree_node_t *left = tree_find_predecessor(get_left(curr), key, precedes);
+	struct tree_node_t *right = tree_find_predecessor(get_right(curr), key, precedes);
+	
+	// Cas où on doit remonter le résultat
+	if (left != NULL) return left;
+	if (right != NULL) return right;
 }
 
 struct tree_node_t * tree_find_successor(struct tree_node_t * curr, const void * key, int (*precedes)(const void *, const void *)) {
-	assert(curr);
-	// TODO
+	assert(curr); // évite d'exécuter la fonction sur un noeud inexistant (si on est à une extrémité de l'arbre par exemple)
+
+	if (precedes(curr->key, key)) return get_right(curr); // On trouve le noeud key
+
+	struct tree_node_t *left = tree_find_predecessor(get_left(curr), key, precedes);
+	struct tree_node_t *right = tree_find_predecessor(get_right(curr), key, precedes);
+	
+	// Cas où on doit remonter le résultat
+	if (left != NULL) return left;
+	if (right != NULL) return right;
 }
 
 /**
