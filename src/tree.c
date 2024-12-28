@@ -210,12 +210,12 @@ struct tree_node_t * tree_find_max(struct tree_node_t * curr) {
 struct tree_node_t * tree_find_node(struct tree_node_t * curr, const void * key, int (*precedes)(const void *, const void *)) {
 	if (curr == NULL) return NULL;
 
-	if (precedes(get_tree_node_key(curr), key) == 0) {
+	if (get_tree_node_key(curr) == key) {
 		return curr;
-	} else if (precedes(get_tree_node_key(curr), key) == -1) {
-		return tree_find_node(get_left(curr));
-	} else {
+	} else if (precedes(get_tree_node_key(curr), key) == 1) { // si key précède la recherche, on cherche dans les plus grands
 		return tree_find_node(get_right(curr));
+	} else {
+		return tree_find_node(get_left(curr));
 	}
 }
 
