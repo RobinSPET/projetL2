@@ -237,7 +237,7 @@ struct tree_node_t * tree_find_node(struct tree_node_t * curr, const void * key,
 struct tree_node_t * tree_find_predecessor(struct tree_node_t * curr, const void * key, int (*precedes)(const void *, const void *)) {
 	assert(curr); // évite d'exécuter la fonction sur un noeud inexistant (si on est à une extrémité de l'arbre par exemple)
 
-	if (precedes(curr->key, key)) return get_left(curr); // On trouve le noeud key
+	if (precedes(curr->key, key) == 1) return get_left(curr); // On trouve le noeud key
 
 	struct tree_node_t *left = tree_find_predecessor(get_left(curr), key, precedes);
 	struct tree_node_t *right = tree_find_predecessor(get_right(curr), key, precedes);
