@@ -14,19 +14,26 @@
 // de chaque segment à l'aide de la fonction point_precedes et enregistrer le point
 // qui précède sur le membre endpoint1 de la struct Segment, tandis que l'autre
 // point sur le membre endpoint2 de la struct Segment.
-struct list_t * load_segments(const char * input_filename) {
+struct list_t *load_segments(const char *input_filename) {
     FILE *file = fopen(input_filename, "r");
-    if (!file) { // si le fichier n'a pas pu etre ouvert
-        fprintf(stderr, "le fichier est impossible à ouvrir %s\n", input_filename);
+    if (!file) {
+        fprintf(stderr, "Le fichier est impossible à ouvrir %s\n", input_filename);
         return NULL;
     }
 
     struct list_t *segment_list = list_create();
     assert(segment_list != NULL);
 
-    int x1, y1, x2, y2;
-    while (fscanf(file, "%d/%d %d/%d", &x1, &y1, &x2, &y2) == 4) {
-        Segment s = create_segment(x1, y1, x2, y2);
+    long long x1_num, x1_denom, y1_num, y1_denom;
+    long long x2_num, x2_denom, y2_num, y2_denom;
+
+    while (fscanf(file, "%lld/%lld,%lld/%lld %lld/%lld,%lld/%lld",
+                  &x1_num, &x1_denom, &y1_num, &y1_denom,
+                  &x2_num, &x2_denom, &y2_num, &y2_denom) == 8) {
+        Segment s = create_segment(
+            x1_num, x1_denom, y1_num, y1_denom,
+            x2_num, x2_denom, y2_num, y2_denom
+        );
         list_push_back(segment_list, &s, sizeof(Segment));
     }
 
