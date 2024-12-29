@@ -79,37 +79,44 @@ void set_right(struct tree_node_t * node, struct tree_node_t * new_right) {
  *********************************************************************/
 
 struct tree_t * new_tree() {
-	// TODO
+	struct tree_t *t = (struct Point *)malloc(sizeof(struct tree_t));
+
+	if (t == NULL) {
+		perror("Erreur d'allocation mémoire");
+		return NULL;
+	}
+
+    return t;
 }
 
 int tree_is_empty(const struct tree_t * T) {
 	assert(T);
-	// TODO
+	return T->root == NULL;
 }
 
 unsigned int get_tree_size(const struct tree_t * T) {
 	assert(T);
-	// TODO
+	return T->size;
 }
 
 struct tree_node_t * get_root(const struct tree_t * T) {
 	assert(T);
-	// TODO
+	return T->root;
 }
 
 void increase_tree_size(struct tree_t * T) {
 	assert(T);
-	// TODO
+	T->size++;
 }
 
 void decrease_tree_size(struct tree_t * T) {
 	assert(T);
-	// TODO
+	T->size--;
 }
 
 void set_root(struct tree_t * T, struct tree_node_t * new_root) {
 	assert(T);
-	// TODO
+	T->root = new_root;
 }
 
 /**
@@ -124,13 +131,27 @@ void set_root(struct tree_t * T, struct tree_node_t * new_root) {
  * @param[in] freeData 
  */
 static void delete_tree_node(struct tree_node_t * curr, void (*freeKey)(void *), void (*freeData)(void *)) {
-	// TODO
+	assert(curr);
+
+	delete_tree_node(get_left(curr), freeKey, freeData);
+
+	freeKey(curr);
+	freeData(curr);
+
+	delete_tree_node(get_right(curr), freeKey, freeData);
+
+	free(curr); 
+	curr = NULL;
 }
 
 // NB : Utiliser la procédure récursive delete_tree_node.
 void delete_tree(struct tree_t * T, void (*freeKey)(void *), void (*freeData)(void *)) {
 	assert(T);
-	// TODO
+	
+	delete_tree_node(get_root(T), freeKey, freeData);
+
+	free(T);
+	T = NULL;
 }
 
 /**
@@ -143,13 +164,19 @@ void delete_tree(struct tree_t * T, void (*freeKey)(void *), void (*freeData)(vo
  * @param[in] viewData 
  */
 static void view_tree_inorder(struct tree_node_t * curr, void (*viewKey)(const void *), void (*viewData)(const void *)) {
-	// TODO
+	if (curr == NULL) {
+		return NULL;
+	}
+
+	view_tree_inorder(get_left(curr), viewKey, viewData);
+	printf("KEY : " + viewKey(curr) + "\n DATA : " + viewData(curr));
+	view_tree_inorder(get_right(curr), viewKey, viewData);
 }
 
 // NB : Utiliser la procédure récursive view_tree_inorder.
 void view_tree(const struct tree_t * T, void (*viewKey)(const void * key), void (*viewData)(const void * data)) {
 	assert(T);
-	// TODO
+	view_tree_inorder(get_root(T), viewKey, viewData);
 }
 
 /**
