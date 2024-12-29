@@ -36,9 +36,8 @@ struct list_t * load_segments(const char * input_filename) {
 
 // Ranger dans un fichier texte de nom output_filename les points d'intersection qui sont contenus dans la liste intersections.
 
-void save_intersections ( const char * output_filename , const struct list_t * intersections ) ;{
-    
-    FILE *file = fopen(output_filename, "w"); //ouverture fichier
+void save_intersections(const char *output_filename, const struct list_t *intersections) {
+    FILE *file = fopen(output_filename, "w");
     if (!file) {
         perror("Erreur lors de l'ouverture du fichier");
         return;
@@ -51,11 +50,21 @@ void save_intersections ( const char * output_filename , const struct list_t * i
         struct Rational x = get_x(point);
         struct Rational y = get_y(point);
 
-        fprintf(file, "%lld/%lld,%lld/%lld\n",
-                x.numerator, x.denominator,
-                y.numerator, y.denominator);
+        struct list_node_t *next_node = get_successor(current_node);
+        if (next_node) {
+            struct Point *next_point = (struct Point *)get_list_node_data(next_node);
+            struct Rational next_x = get_x(next_point);
+            struct Rational next_y = get_y(next_point);
 
-        current_node = get_successor(current_node);
+            fprintf(file, "%lld/%lld,%lld/%lld %lld/%lld,%lld/%lld\n", //correction avec le bon format
+                    x.numerator, x.denominator, y.numerator, y.denominator,
+                    next_x.numerator, next_x.denominator, next_y.numerator, next_y.denominator);
+
+            current_node = next_node;//prochain segment
+
+        } else {
+            break; 
+        }
     }
     fclose(file);
 }
