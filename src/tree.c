@@ -204,16 +204,31 @@ void tree_insert(struct tree_t * T, void * key, void * data, int (*precedes)(con
 
 struct tree_node_t * tree_find_min(struct tree_node_t * curr) {
 	assert(curr);
-	// TODO
+
+	return (get_tree_node_data(curr) > tree_find_min(get_left(curr))) // compare le noeud actuel avec la valeur minimale de tous les fils
+		? tree_find_min(curr)
+		: get_tree_node_data(curr);
+
 }
 
 struct tree_node_t * tree_find_max(struct tree_node_t * curr) {
 	assert(curr);
-	// TODO
+
+	return (get_tree_node_data(curr) < tree_find_min(get_left(curr))) // compare le noeud actuel avec la valeur minimale de tous les fils
+		? tree_find_min(curr)
+		: get_tree_node_data(curr);
 }
 
 struct tree_node_t * tree_find_node(struct tree_node_t * curr, const void * key, int (*precedes)(const void *, const void *)) {
-	// TODO
+	if (curr == NULL) return NULL;
+
+	if (get_tree_node_key(curr) == key) {
+		return curr;
+	} else if (precedes(get_tree_node_key(curr), key) == 1) { // si key précède la recherche, on cherche dans les plus grands
+		return tree_find_node(get_right(curr));
+	} else {
+		return tree_find_node(get_left(curr));
+	}
 }
 
 struct tree_node_t * tree_find_predecessor(struct tree_node_t * curr, const void * key, int (*precedes)(const void *, const void *)) {
