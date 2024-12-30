@@ -212,12 +212,61 @@ struct tree_node_t * tree_find_successor(struct tree_node_t * curr, const void *
  * @return la donnée du nœud supprimé
  */
 static void * remove_tree_node(struct tree_node_t ** curr, void * key, int (*precedes)(const void *, const void *)) {
-	assert(curr);
-	// TODO
+	 assert(curr);
+
+    if (*curr == NULL) {
+        return NULL;
+    }
+
+    if (precedes(key, (*curr)->key)) {
+        return remove_tree_node(&(*curr)->left, key, precedes);
+    } else if (precedes((*curr)->key, key)) {
+        return remove_tree_node(&(*curr)->right, key, precedes);
+    } else {
+        void *data = (*curr)->data;
+
+        if ((*curr)->left == NULL && (*curr)->right == NULL) {
+        
+            free(*curr);
+            *curr = NULL;
+
+        } else if ((*curr)->left == NULL) {
+            struct tree_node_t *temp = *curr;
+            *curr = (*curr)->right;
+            free(temp);
+
+        } else if ((*curr)->right == NULL) {
+            struct tree_node_t *temp = *curr;
+            *curr = (*curr)->left;
+            free(temp);
+
+        } else {
+            struct tree_node_t *min_node = (*curr)->right;
+            while (min_node->left != NULL) {
+                min_node = min_node->left;
+            }
+
+            (*curr)->key = min_node->key;
+            (*curr)->data = min_node->data;
+            remove_tree_node(&(*curr)->right, min_node->key, precedes);
+        }
+
+        return data;
+    }
 }
 
 // NB : Utiliser la fonction récursive remove_tree_node.
 void * tree_remove(struct tree_t * T, void * key, int (*precedes)(const void * a, const void * b)) {
 	assert(T);
-	// TODO
+	if (T->root == NULL) {
+        return NULL; //l'arbre est donc vide
+    }
+
+    void *data = remove_tree_node(&T->root, key, precedes);
+
+    if (data != NULL) {
+        T->size--;
+    }
+
+    return data;
 }
