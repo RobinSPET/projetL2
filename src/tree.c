@@ -169,7 +169,10 @@ static void view_tree_inorder(struct tree_node_t * curr, void (*viewKey)(const v
 	}
 
 	view_tree_inorder(get_left(curr), viewKey, viewData);
-	printf("KEY : " + viewKey(curr) + "\n DATA : " + viewData(curr));
+	printf("KEY : ");
+	viewKey(curr);
+	printf("\n DATA : ");
+	viewData(curr);
 	view_tree_inorder(get_right(curr), viewKey, viewData);
 }
 
@@ -222,23 +225,39 @@ struct tree_node_t * tree_find_max(struct tree_node_t * curr) {
 struct tree_node_t * tree_find_node(struct tree_node_t * curr, const void * key, int (*precedes)(const void *, const void *)) {
 	if (curr == NULL) return NULL;
 
-	if (get_tree_node_key(curr) == key) {
+	if (precedes(get_tree_node_key(curr), key) == 0) {
 		return curr;
-	} else if (precedes(get_tree_node_key(curr), key) == 1) { // si key précède la recherche, on cherche dans les plus grands
-		return tree_find_node(get_right(curr));
+	} else if (precedes(get_tree_node_key(curr), key) == -1) {
+		return tree_find_node(get_left(curr), key, precedes);
 	} else {
-		return tree_find_node(get_left(curr));
+		return tree_find_node(get_right(curr), key, precedes);
 	}
 }
 
 struct tree_node_t * tree_find_predecessor(struct tree_node_t * curr, const void * key, int (*precedes)(const void *, const void *)) {
-	assert(curr);
-	// TODO
+	assert(curr); 
+
+	// 1 - Je teste si curr est un prédécesseur, si non, j'appelle sur get_left() (left forcément inférieur)
+	if (precedes(get_tree_node_key(curr), key) == 0) return tree_find_predecessor(get_left(curr), key, precedes);
+
+	// 2 - J'appelle récursivement la fonction pour connaître le plus haut prédécesseur 
+	// 	   (si aucun des noeuds est prédécesseur, le résultat est NULL), si c'est NULL, je renvoie curr
+	return (tree_find_predecessor(get_right(curr), key, precedes) == NULL)
+	? get_tree_node_key(curr)
+	: tree_find_predecessor(get_right(curr), key, precedes);
 }
 
 struct tree_node_t * tree_find_successor(struct tree_node_t * curr, const void * key, int (*precedes)(const void *, const void *)) {
-	assert(curr);
-	// TODO
+	assert(curr); // évite d'exécuter la fonction sur un noeud inexistant (si on est à une extrémité de l'arbre par exemple)
+
+	// 1 - Je teste si curr est un prédécesseur, si oui, j'appelle sur get_right() (right forcément supérieur)
+	if (precedes(get_tree_node_key(curr), key) == 1 || get_tree_node_key(curr) == key) return tree_find_predecessor(get_right(curr), key, precedes);
+
+	// 2 - J'appelle récursivement la fonction pour connaître le plus bas successeur 
+	// 	   (si aucun des noeuds est prédécesseur, le résultat est NULL), si c'est NULL, je renvoie curr
+	return (tree_find_predecessor(get_left(curr), key, precedes) == NULL)
+	? get_tree_node_key(curr)
+	: tree_find_predecessor(get_left(curr), key, precedes);
 }
 
 /**
