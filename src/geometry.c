@@ -159,18 +159,6 @@ static int get_orientation(const struct Point * p, const struct Point * q, const
 		return -1;
 }
 
-int min(int a, int b) {
-	assert(a);
-	assert(b);
-	return (a < b) ? a : b;
-}
-
-int max(int a, int b) {
-	assert(a);
-	assert(b);
-	return (a > b) ? a : b;
-}
-
 /**
  * Vérifie si le point \p q est inclus dans le carré défini par les points \p p et \p r .
  * Si \p p , \p q , \p r sont colinéaires, alors \p q se trouve dans le segment [\p p, \p r ].
