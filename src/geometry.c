@@ -122,24 +122,17 @@ int segment_precedes(const struct Segment * s1, const struct Segment * s2, struc
 	assert(lte(rmin(get_x(get_endpoint1(s2)), get_x(get_endpoint2(s2))), x0) &&
 		   lte(x0, rmax(get_x(get_endpoint1(s2)), get_x(get_endpoint2(s2)))));
 
-	struct Point i1 = get_intersection(s1, x0);
-    struct Point i2 = get_intersection(s2, x0);
+	// calcul de y1 croisement avec x0
+	struct Rational t = rdiv(rsub(x0, get_x(get_endpoint1(s1))), rsub(get_x(get_endpoint2(s1)), get_x(get_endpoint1(s1))));
+	struct Rational y1 = rmul(radd(get_y(get_endpoint1(s1)), t), rsub(get_y(get_endpoint1(s1)), get_y(get_endpoint2(s1))));
 
-    if (lt(get_y(&i1), get_y(&i2))) {
-        return 1;
-    } else if (gt(get_y(&i1), get_y(&i2))) {
-        return 0;
-    }
+	// calcul de y2 croisement avec x0
+	t = rdiv(rsub(x0, get_x(get_endpoint1(s2))), rsub(get_x(get_endpoint2(s2)), get_x(get_endpoint1(s2))));
+	struct Rational y2 = rmul(radd(get_y(get_endpoint1(s2)), t), rsub(get_y(get_endpoint1(s2)), get_y(get_endpoint2(s2))));
 
-    if (eq(get_y(&i1), get_y(&i2))) { //s'ils ont les mêmes coordonnées 
-        if (lt(get_x(get_endpoint1(s1)), get_x(get_endpoint1(s2)))) {
-            return 1;
-        } else {
-            return 0;
-        }
-    }
+    if (gt(y1, y2)) return 1;
 
-    return 0;
+	return 0;
 }
 
 /**
