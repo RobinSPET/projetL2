@@ -165,7 +165,7 @@ void list_insert_first(struct list_t * L, void * data) {
     if (L->head) {
         new_node->successor = L->head;
         L->head->predecessor = new_node;
-    } 
+    }
     L->head = new_node;
     
     increase_list_size(L);
@@ -253,14 +253,13 @@ void * list_remove_node(struct list_t * L, struct list_node_t * node) {
     void *data = node->data;
     free(node);              
     decrease_list_size(L);   
-
     return data;
 }
 
 struct list_node_t * list_find_node(struct list_t * L, void * data) {
 	assert(L);
 	struct list_node_t *current = L->head;
-    
+
     while (current) {
         if (current->data == data) { 
             return current; 
