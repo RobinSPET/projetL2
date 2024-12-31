@@ -165,7 +165,13 @@ void list_insert_first(struct list_t * L, void * data) {
     if (L->head) {
         new_node->successor = L->head;
         L->head->predecessor = new_node;
+<<<<<<< HEAD
     } 
+=======
+    } else {
+        L->tail = new_node; 
+    }
+>>>>>>> e62e99b6a8c7aec721bb08056bd888816649cfa1
     L->head = new_node;
     
     increase_list_size(L);
@@ -212,6 +218,7 @@ void * list_remove_first(struct list_t * L) {
         return NULL;
     }
 
+<<<<<<< HEAD
     struct list_node_t *old_head = L->head;
     void *data = old_head->data;
 
@@ -219,6 +226,21 @@ void * list_remove_first(struct list_t * L) {
 
     free(old_head);
     decrease_list_size(L);
+=======
+    struct list_node_t *old_head = L->head; 
+    void *data = old_head->data;           
+
+    L->head = old_head->successor;         
+
+    if (L->head) {
+        L->head->predecessor = NULL;       
+    } else {
+        L->tail = NULL;                    
+    }
+
+    free(old_head);                        
+    decrease_list_size(L);                 
+>>>>>>> e62e99b6a8c7aec721bb08056bd888816649cfa1
 
     return data;                           
 }
@@ -236,31 +258,62 @@ void * list_remove_last(struct list_t * L) {
 
     L->tail = old_tail->predecessor;       
 
+<<<<<<< HEAD
     free(old_tail);
     decrease_list_size(L);
 
     return data;
 }
+=======
+    if (L->tail) {
+        L->tail->successor = NULL;         
+    } else {
+        L->head = NULL;                    
+    }
+
+>>>>>>> e62e99b6a8c7aec721bb08056bd888816649cfa1
 
 void * list_remove_node(struct list_t * L, struct list_node_t * node) {
 	assert(L);
 	assert(node);
 
+<<<<<<< HEAD
     if (node->predecessor) node->predecessor->successor = node->successor; 
 
     if (node->successor) node->successor->predecessor = node->predecessor; 
+=======
+    if (node->predecessor) {
+        node->predecessor->successor = node->successor; 
+    } else {
+        L->head = node->successor; 
+    }
+
+    if (node->successor) {
+        node->successor->predecessor = node->predecessor; 
+    } else {
+        L->tail = node->predecessor; 
+    }
+>>>>>>> e62e99b6a8c7aec721bb08056bd888816649cfa1
 
     void *data = node->data;
     free(node);              
     decrease_list_size(L);   
 
+<<<<<<< HEAD
     return data;
+=======
+    return data;             
+}
+>>>>>>> e62e99b6a8c7aec721bb08056bd888816649cfa1
 }
 
 struct list_node_t * list_find_node(struct list_t * L, void * data) {
 	assert(L);
 	struct list_node_t *current = L->head;
+<<<<<<< HEAD
     
+=======
+>>>>>>> e62e99b6a8c7aec721bb08056bd888816649cfa1
     while (current) {
         if (current->data == data) { 
             return current; 

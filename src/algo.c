@@ -15,35 +15,51 @@
 // qui précède sur le membre endpoint1 de la struct Segment, tandis que l'autre
 // point sur le membre endpoint2 de la struct Segment.
 struct list_t * load_segments(const char * input_filename) {
-	// TODO
+    FILE *file = fopen(input_filename, "r");
+    if (!file) { // si le fichier n'a pas pu etre ouvert
+        fprintf(stderr, "le fichier est impossible à ouvrir %s\n", input_filename);
+        return NULL;
+    }
+
+    struct list_t *segment_list = list_create();
+    assert(segment_list != NULL);
+
+    int x1, y1, x2, y2;
+    while (fscanf(file, "%d/%d %d/%d", &x1, &y1, &x2, &y2) == 4) {
+        Segment s = create_segment(x1, y1, x2, y2);
+        list_push_back(segment_list, &s, sizeof(Segment));
+    }
+
+    fclose(file);
+    return segment_list;
 }
 
-void save_intersections(const char * output_filename, const struct list_t * intersections) {
-	// TODO
+// Ranger dans un fichier texte de nom output_filename les points d'intersection qui sont contenus dans la liste intersections.
+
+void save_intersections ( const char * output_filename , const struct list_t * intersections ) ;{
+    
+    FILE *file = fopen(output_filename, "w"); //ouverture fichier
+    if (!file) {
+        perror("Erreur lors de l'ouverture du fichier");
+        return;
+    }
+
+    struct list_node_t *current_node = intersections->head;
+    while (current_node) {
+        struct Point *point = (struct Point *)get_list_node_data(current_node);
+
+        struct Rational x = get_x(point);
+        struct Rational y = get_y(point);
+
+        fprintf(file, "%lld/%lld,%lld/%lld\n",
+                x.numerator, x.denominator,
+                y.numerator, y.denominator);
+
+        current_node = get_successor(current_node);
+    }
+    fclose(file);
 }
 
-struct list_t * all_pairs(const struct list_t * segments) {
-	assert(segments);
-	
-	struct list_t * intersections = new_list();
-
-	struct list_node_t * noeud1 = get_head(segments);
-	while (noeud1){
-		struct Segment * s1 = get_list_node_data(noeud1);
-
-		struct list_node_t * noeud2 = get_successor(noeud1);
-		while (noeud2){
-			struct Segment * s2 = get_list_node_data(noeud2);
-
-			struct Point * intersection = get_intersection_point(s1, s2);
-			if (intersection) list_insert_last(intersection);
-
-			noeud2 = get_successeur(noeud2);
-		}
-
-		noeud1 = get_successeur(noeud1);
-	}
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 //////////////////// ALGORITHME DE Bentley-Ottmann ///////////////////////////
@@ -51,7 +67,6 @@ struct list_t * all_pairs(const struct list_t * segments) {
 
 
 struct Event * new_event(int type, struct Point * event_point, struct Segment * s1, struct Segment * s2) {
-	// TODO
 	struct Event *event = malloc(sizeof(struct Event));
     if (!event) {
         fprintf(stderr, "il est impossible d'allouer de la mémoire.\n");
@@ -66,26 +81,21 @@ struct Event * new_event(int type, struct Point * event_point, struct Segment * 
 
 int get_event_type(const struct Event * event) {
 	assert(event);
-	// TODO
-	// TO
 	return event->type;
 }
 
 struct Point * get_event_point(const struct Event * event) {
 	assert(event);
-	// TODO
 	return event->event_point;
 }
 
 struct Segment * get_event_segment1(const struct Event * event) {
 	assert(event);
-	// TODO
 	return event->s1;
 }
 
 struct Segment * get_event_segment2(const struct Event * event) {
 	assert(event);
-	// TODO
 	return event->s2;
 }
 
