@@ -42,7 +42,6 @@ struct list_t *load_segments(const char *input_filename) {
 }
 
 // Ranger dans un fichier texte de nom output_filename les points d'intersection qui sont contenus dans la liste intersections.
-
 void save_intersections(const char *output_filename, const struct list_t *intersections) {
     FILE *file = fopen(output_filename, "w");
     if (!file) {
@@ -74,6 +73,29 @@ void save_intersections(const char *output_filename, const struct list_t *inters
         }
     }
     fclose(file);
+}
+
+struct list_t * all_pairs(const struct list_t * segments) {
+	assert(segments);
+	
+	struct list_t * intersections = new_list();
+
+	struct list_node_t * noeud1 = get_head(segments);
+	while (noeud1){
+		struct Segment * s1 = get_list_node_data(noeud1);
+
+		struct list_node_t * noeud2 = get_successor(noeud1);
+		while (noeud2){
+			struct Segment * s2 = get_list_node_data(noeud2);
+
+			struct Point * intersection = get_intersection_point(s1, s2);
+			if (intersection) list_insert_last(intersection);
+
+			noeud2 = get_successeur(noeud2);
+		}
+
+		noeud1 = get_successeur(noeud1);
+	}
 }
 
 
