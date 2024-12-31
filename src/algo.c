@@ -27,14 +27,17 @@ struct list_t *load_segments(const char *input_filename) {
     long long x1_num, x1_denom, y1_num, y1_denom;
     long long x2_num, x2_denom, y2_num, y2_denom;
 
-    while (fscanf(file, "%lld/%lld,%lld/%lld %lld/%lld,%lld/%lld",
-                  &x1_num, &x1_denom, &y1_num, &y1_denom,
-                  &x2_num, &x2_denom, &y2_num, &y2_denom) == 8) {
-        Segment s = create_segment(
-            x1_num, x1_denom, y1_num, y1_denom,
-            x2_num, x2_denom, y2_num, y2_denom
-        );
-        list_push_back(segment_list, &s, sizeof(Segment));
+    while (fscanf(file, "%lld/%lld,%lld/%lld %lld/%lld,%lld/%lld", &x1_num, &x1_denom, &y1_num, &y1_denom,&x2_num, &x2_denom, &y2_num, &y2_denom) == 8) {
+        struct Rational x1 = {x1_num, x1_denom};
+        struct Rational y1 = {y1_num, y1_denom};
+        struct Rational x2 = {x2_num, x2_denom};
+        struct Rational y2 = {y2_num, y2_denom};
+        
+        struct Point *p1 = new_point(x1, y1);
+        struct Point *p2 = new_point(x2, y2);
+
+        struct Segment *s = new_segment(p1, p2);
+        list_push_back(segment_list, &s, sizeof(struct Segment));
     }
 
     fclose(file);
@@ -89,7 +92,7 @@ struct list_t * all_pairs(const struct list_t * segments) {
 			struct Segment * s2 = get_list_node_data(noeud2);
 
 			struct Point * intersection = get_intersection_point(s1, s2);
-			if (intersection) list_insert_last(intersection);
+			if (intersection) list_insert_last(segments, intersection);
 
 			noeud2 = get_successeur(noeud2);
 		}
