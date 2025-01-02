@@ -66,37 +66,27 @@ void save_intersections ( const char * output_filename , const struct list_t * i
 ///////////////////////////////////////////////////////////////////////////////
 
 struct Event * new_event(int type, struct Point * event_point, struct Segment * s1, struct Segment * s2) {
-	struct Event *event = malloc(sizeof(struct Event));
-    if (!event) {
-        fprintf(stderr, "il est impossible d'allouer de la mémoire.\n");
-        exit(EXIT_FAILURE);
-    }
-    event->type = type;
-    event->event_point = event_point;
-    event->s1 = s1;
-    event->s2 = s2;
-    return event;
+	// TODO
 }
 
 int get_event_type(const struct Event * event) {
 	assert(event);
-	// TO
-	return event->type;
+	// TODO
 }
 
 struct Point * get_event_point(const struct Event * event) {
 	assert(event);
-	return event->event_point;
+	// TODO
 }
 
 struct Segment * get_event_segment1(const struct Event * event) {
 	assert(event);
-	return event->s1;
+	// TODO
 }
 
 struct Segment * get_event_segment2(const struct Event * event) {
 	assert(event);
-	return event->s2;
+	// TODO
 }
 
 /**
