@@ -59,21 +59,10 @@ void save_intersections(const char *output_filename, const struct list_t *inters
         struct Rational x = get_x(point);
         struct Rational y = get_y(point);
 
-        struct list_node_t *next_node = get_successor(current_node);
-        if (next_node) {
-            struct Point *next_point = (struct Point *)get_list_node_data(next_node);
-            struct Rational next_x = get_x(next_point);
-            struct Rational next_y = get_y(next_point);
+        fprintf(file, "%lld/%lld,%lld/%lld\n",
+            get_numerator(x), get_denominator(x), get_numerator(y), get_denominator(y));
 
-            fprintf(file, "%lld/%lld,%lld/%lld %lld/%lld,%lld/%lld\n", //correction avec le bon format
-                    x.numerator, x.denominator, y.numerator, y.denominator,
-                    next_x.numerator, next_x.denominator, next_y.numerator, next_y.denominator);
-
-            current_node = next_node;//prochain segment
-
-        } else {
-            break; 
-        }
+        current_node = get_successor(current_node);
     }
     fclose(file);
 }
