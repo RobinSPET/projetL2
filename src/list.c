@@ -165,8 +165,6 @@ void list_insert_first(struct list_t * L, void * data) {
     if (L->head) {
         new_node->successor = L->head;
         L->head->predecessor = new_node;
-    } else {
-        L->tail = new_node; 
     }
     L->head = new_node;
     
@@ -214,19 +212,13 @@ void * list_remove_first(struct list_t * L) {
         return NULL;
     }
 
-    struct list_node_t *old_head = L->head; 
-    void *data = old_head->data;           
+    struct list_node_t *old_head = L->head;
+    void *data = old_head->data;
 
-    L->head = old_head->successor;         
+    L->head = old_head->successor;
 
-    if (L->head) {
-        L->head->predecessor = NULL;       
-    } else {
-        L->tail = NULL;                    
-    }
-
-    free(old_head);                        
-    decrease_list_size(L);                 
+    free(old_head);
+    decrease_list_size(L);
 
     return data;                           
 }
@@ -244,40 +236,30 @@ void * list_remove_last(struct list_t * L) {
 
     L->tail = old_tail->predecessor;       
 
-    if (L->tail) {
-        L->tail->successor = NULL;         
-    } else {
-        L->head = NULL;                    
-    }
+    free(old_tail);
+    decrease_list_size(L);
 
+    return data;
+}
 
 void * list_remove_node(struct list_t * L, struct list_node_t * node) {
 	assert(L);
 	assert(node);
 
-    if (node->predecessor) {
-        node->predecessor->successor = node->successor; 
-    } else {
-        L->head = node->successor; 
-    }
+    if (node->predecessor) node->predecessor->successor = node->successor; 
 
-    if (node->successor) {
-        node->successor->predecessor = node->predecessor; 
-    } else {
-        L->tail = node->predecessor; 
-    }
+    if (node->successor) node->successor->predecessor = node->predecessor; 
 
     void *data = node->data;
     free(node);              
     decrease_list_size(L);   
-
-    return data;             
-}
+    return data;
 }
 
 struct list_node_t * list_find_node(struct list_t * L, void * data) {
 	assert(L);
 	struct list_node_t *current = L->head;
+
     while (current) {
         if (current->data == data) { 
             return current; 
