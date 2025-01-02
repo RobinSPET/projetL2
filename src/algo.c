@@ -104,9 +104,9 @@ static struct tree_t * initialize_events(const struct list_t * segments) {
 	assert(segments);
 	struct tree_t *events = tree_new();
 
-    struct list_node_t *node = list_first(segments);
+    struct list_node_t *node = get_list_head(segments);
     while (node != NULL) {
-        struct Segment *segment = list_get_data(node);
+        struct Segment *segment = get_list_node_data(node);
 
         struct Event *begin_event = new_event(1, get_endpoint1(segment), segment, NULL);
         tree_insert(events, begin_event, (int (*)(const void *, const void *))event_precedes);
