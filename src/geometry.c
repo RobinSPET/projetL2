@@ -122,7 +122,24 @@ int segment_precedes(const struct Segment * s1, const struct Segment * s2, struc
 	assert(lte(rmin(get_x(get_endpoint1(s2)), get_x(get_endpoint2(s2))), x0) &&
 		   lte(x0, rmax(get_x(get_endpoint1(s2)), get_x(get_endpoint2(s2)))));
 
-	// TODO
+	struct Point i1 = get_intersection(s1, x0);
+    struct Point i2 = get_intersection(s2, x0);
+
+    if (lt(get_y(&i1), get_y(&i2))) {
+        return 1;
+    } else if (gt(get_y(&i1), get_y(&i2))) {
+        return 0;
+    }
+
+    if (eq(get_y(&i1), get_y(&i2))) { //s'ils ont les mêmes coordonnées 
+        if (lt(get_x(get_endpoint1(s1)), get_x(get_endpoint1(s2)))) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    return 0;
 }
 
 /**
