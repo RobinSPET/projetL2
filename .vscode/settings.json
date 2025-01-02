@@ -40,6 +40,7 @@
         "utility": "c",
         "variant": "c",
         "vector": "c",
-        "cmath": "c"
+        "cmath": "c",
+        "list.h": "c"
     }
 }
