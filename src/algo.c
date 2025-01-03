@@ -59,21 +59,10 @@ void save_intersections(const char *output_filename, const struct list_t *inters
         struct Rational x = get_x(point);
         struct Rational y = get_y(point);
 
-        struct list_node_t *next_node = get_successor(current_node);
-        if (next_node) {
-            struct Point *next_point = (struct Point *)get_list_node_data(next_node);
-            struct Rational next_x = get_x(next_point);
-            struct Rational next_y = get_y(next_point);
+        fprintf(file, "%lld/%lld,%lld/%lld\n",
+            get_numerator(x), get_denominator(x), get_numerator(y), get_denominator(y));
 
-            fprintf(file, "%lld/%lld,%lld/%lld %lld/%lld,%lld/%lld\n", //correction avec le bon format
-                    x.numerator, x.denominator, y.numerator, y.denominator,
-                    next_x.numerator, next_x.denominator, next_y.numerator, next_y.denominator);
-
-            current_node = next_node;//prochain segment
-
-        } else {
-            break; 
-        }
+        current_node = get_successor(current_node);
     }
     fclose(file);
 }
@@ -108,26 +97,36 @@ struct list_t * all_pairs(const struct list_t * segments) {
 
 struct Event * new_event(int type, struct Point * event_point, struct Segment * s1, struct Segment * s2) {
 	// TODO
+	struct Event *event = malloc(sizeof(struct Event));
+    if (!event) {
+        fprintf(stderr, "il est impossible d'allouer de la mémoire.\n");
+        exit(EXIT_FAILURE);
+    }
+    event->type = type;
+    event->event_point = event_point;
+    event->s1 = s1;
+    event->s2 = s2;
+    return event;
 }
 
 int get_event_type(const struct Event * event) {
 	assert(event);
-	// TODO
+	return event->type;
 }
 
 struct Point * get_event_point(const struct Event * event) {
 	assert(event);
-	// TODO
+	return event->event_point;
 }
 
 struct Segment * get_event_segment1(const struct Event * event) {
 	assert(event);
-	// TODO
+	return event->s1;
 }
 
 struct Segment * get_event_segment2(const struct Event * event) {
 	assert(event);
-	// TODO
+	return event->s2;
 }
 
 /**
