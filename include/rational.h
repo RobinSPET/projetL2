@@ -164,3 +164,11 @@ struct Rational rmin(struct Rational a, struct Rational b);
  * @param[in] r
  */
 void print_rational(struct Rational r);
+
+/**
+ * Met au même dénominateur les deux Rationnels
+ * 
+ * @param[in] r1
+ * @param[in] r2
+ */
+void toSameDenominator(struct Rational *r1, struct Rational *r2);

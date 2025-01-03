@@ -16,6 +16,15 @@ struct list_node_t {
 };
 
 /**
+ * crée un nouveau noeud de liste
+ * 
+ * @param[in] data
+ * 
+ * @return struct list_node_t
+ */
+static struct list_node_t * new_list_node(void * data);
+
+/**
  * Restitue la donnée du nœud \p node .
  * Le nœud \p node ne peut pas être vide.
  * 
