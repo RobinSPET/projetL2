@@ -97,26 +97,36 @@ struct list_t * all_pairs(const struct list_t * segments) {
 
 struct Event * new_event(int type, struct Point * event_point, struct Segment * s1, struct Segment * s2) {
 	// TODO
+	struct Event *event = malloc(sizeof(struct Event));
+    if (!event) {
+        fprintf(stderr, "il est impossible d'allouer de la mémoire.\n");
+        exit(EXIT_FAILURE);
+    }
+    event->type = type;
+    event->event_point = event_point;
+    event->s1 = s1;
+    event->s2 = s2;
+    return event;
 }
 
 int get_event_type(const struct Event * event) {
 	assert(event);
-	// TODO
+	return event->type;
 }
 
 struct Point * get_event_point(const struct Event * event) {
 	assert(event);
-	// TODO
+	return event->event_point;
 }
 
 struct Segment * get_event_segment1(const struct Event * event) {
 	assert(event);
-	// TODO
+	return event->s1;
 }
 
 struct Segment * get_event_segment2(const struct Event * event) {
 	assert(event);
-	// TODO
+	return event->s2;
 }
 
 /**
