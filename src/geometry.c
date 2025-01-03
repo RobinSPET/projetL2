@@ -122,7 +122,17 @@ int segment_precedes(const struct Segment * s1, const struct Segment * s2, struc
 	assert(lte(rmin(get_x(get_endpoint1(s2)), get_x(get_endpoint2(s2))), x0) &&
 		   lte(x0, rmax(get_x(get_endpoint1(s2)), get_x(get_endpoint2(s2)))));
 
-	// TODO
+	// calcul de y1 croisement avec x0
+	struct Rational t = rdiv(rsub(x0, get_x(get_endpoint1(s1))), rsub(get_x(get_endpoint2(s1)), get_x(get_endpoint1(s1))));
+	struct Rational y1 = rmul(radd(get_y(get_endpoint1(s1)), t), rsub(get_y(get_endpoint1(s1)), get_y(get_endpoint2(s1))));
+
+	// calcul de y2 croisement avec x0
+	t = rdiv(rsub(x0, get_x(get_endpoint1(s2))), rsub(get_x(get_endpoint2(s2)), get_x(get_endpoint1(s2))));
+	struct Rational y2 = rmul(radd(get_y(get_endpoint1(s2)), t), rsub(get_y(get_endpoint1(s2)), get_y(get_endpoint2(s2))));
+
+    if (gt(y1, y2)) return 1;
+
+	return 0;
 }
 
 /**
