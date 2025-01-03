@@ -150,10 +150,10 @@ static struct tree_t * initialize_events(const struct list_t * segments) {
         struct Segment *segment = get_list_node_data(node);
 
         struct Event *begin_event = new_event(1, get_endpoint1(segment), segment, NULL);
-        tree_insert(events, begin_event, (int (*)(const void *, const void *))event_precedes);
+        tree_insert(events, begin_event, segment, point_precedes);
 
         struct Event *end_event = new_event(2, get_endpoint2(segment), segment, NULL);
-        tree_insert(events, end_event, (int (*)(const void *, const void *))event_precedes);
+        tree_insert(events, end_event, segment,point_precedes);
 
         node = list_next(node);
     }
