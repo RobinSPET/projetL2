@@ -331,7 +331,6 @@ static void * remove_tree_node(struct tree_node_t ** curr, void * key, int (*pre
 // NB : Utiliser la fonction récursive remove_tree_node.
 void * tree_remove(struct tree_t * T, void * key, int (*precedes)(const void * a, const void * b)) {
 	assert(T);
-
 	if (T->root == NULL) {
         return NULL; //l'arbre est donc vide
     }
