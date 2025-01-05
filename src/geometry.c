@@ -1,6 +1,5 @@
-#include "../include/rational.h"
-#include "../src/rational.c"
-#include "../include/geometry.h"
+#include "rational.h"
+#include "geometry.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,6 +9,11 @@
 
 
 struct Point * new_point(struct Rational x, struct Rational y) {
+	if (x.denominator == 0 || y.denominator == 0) {
+        fprintf(stderr, "Erreur : Les coordonnées d'un point ont un dénominateur nul.\n");
+        return NULL;
+    }
+
 	struct Point *p = (struct Point *)malloc(sizeof(struct Point));
 
 	if (p == NULL) {
@@ -26,6 +30,10 @@ struct Point * new_point(struct Rational x, struct Rational y) {
 void free_point(struct Point *p){
 	assert(p);
 
+	if (!p) {
+        fprintf(stderr, "Tentative de libérer un point NULL\n");
+        return;
+    }
 	free(p);
 	p = NULL;
 }
@@ -55,8 +63,8 @@ void print_point(const void * p) {
 	const struct Point *point = (const struct Point *)p;
 
 	printf("============== Point ==============\n");
-	printf("===== abscisse : %lld =====\n", get_numerator(get_x(point))/get_denominator(get_x(point)));
-	printf("===== ordonnée : %lld =====\n", get_numerator(get_y(point))/get_denominator(get_y(point)));
+	printf("===== abscisse : %lld/%lld =====\n", get_numerator(get_x(point)), get_denominator(get_x(point)));
+	printf("===== ordonnée : %lld/%lld =====\n", get_numerator(get_y(point)), get_denominator(get_y(point)));
 	printf("===================================\n");
 }
 
@@ -77,6 +85,10 @@ struct Segment * new_segment(struct Point * endpoint1, struct Point * endpoint2)
 void free_segment(void * s) {
 	assert(s);
 
+	if (!s) {
+        fprintf(stderr, "Tentative de libérer un segment NULL\n");
+        return;
+    }
 	free(s);
 	s = NULL;
 }
@@ -125,20 +137,25 @@ int point_precedes(const void * p1, const void * p2) {
 int segment_precedes(const struct Segment * s1, const struct Segment * s2, struct Rational x0) {
 	assert(s1);
 	assert(s2);
+	printf("segment_precedes");
+	if (!s1 || !s2) {
+        fprintf(stderr, "Erreur : segment_precedes appelé avec un segment NULL.\n");
+        exit(EXIT_FAILURE);
+    }
 	assert(lte(rmin(get_x(get_endpoint1(s1)), get_x(get_endpoint2(s1))), x0) &&
 		   lte(x0, rmax(get_x(get_endpoint1(s1)), get_x(get_endpoint2(s1)))));
 	assert(lte(rmin(get_x(get_endpoint1(s2)), get_x(get_endpoint2(s2))), x0) &&
 		   lte(x0, rmax(get_x(get_endpoint1(s2)), get_x(get_endpoint2(s2)))));
 
-	// calcul de y1 croisement avec x0
+	// Calcul de y1 au croisement avec x0
 	struct Rational t = rdiv(rsub(x0, get_x(get_endpoint1(s1))), rsub(get_x(get_endpoint2(s1)), get_x(get_endpoint1(s1))));
-	struct Rational y1 = rmul(radd(get_y(get_endpoint1(s1)), t), rsub(get_y(get_endpoint1(s1)), get_y(get_endpoint2(s1))));
+	struct Rational y1 = radd(get_y(get_endpoint1(s1)), rmul(t, rsub(get_y(get_endpoint2(s1)), get_y(get_endpoint1(s1)))));
 
-	// calcul de y2 croisement avec x0
+	// Calcul de y2 au croisement avec x0
 	t = rdiv(rsub(x0, get_x(get_endpoint1(s2))), rsub(get_x(get_endpoint2(s2)), get_x(get_endpoint1(s2))));
-	struct Rational y2 = rmul(radd(get_y(get_endpoint1(s2)), t), rsub(get_y(get_endpoint1(s2)), get_y(get_endpoint2(s2))));
+	struct Rational y2 = radd(get_y(get_endpoint1(s2)), rmul(t, rsub(get_y(get_endpoint2(s2)), get_y(get_endpoint1(s2)))));
 
-  if (gt(y1, y2)) return 1;
+  	if (gt(y1, y2)) return 1;
 
 	return 0;
 }

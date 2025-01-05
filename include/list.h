@@ -111,6 +111,8 @@ unsigned int get_list_size(const struct list_t * L);
  */
 struct list_node_t * get_list_head(const struct list_t * L);
 
+void print_list(struct list_t *L);
+
 /**
  * Restitue la queue (dernier élément) de la liste \p L .
  * 

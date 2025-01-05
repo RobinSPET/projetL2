@@ -92,8 +92,28 @@ nb_instances=10
 # afin d'avoir une idée des différents cas à traiter.
 # N'oubliez pas à remettre les # dans les deux lignes !
 
-# TODO
+while getopts "d:n:r:i:h" opt; do
+	case $opt in
+		d) dir=$OPTARG ;; # Nom du répertoire
+		n) 
+			IFS=":" read -r nb_segments_min nb_segments_max nb_segments_step <<< "$OPTARG"
+			;;
+		r) 
+			IFS=":" read -r r_min r_max r_step <<< "$OPTARG"
+			;;
+		i) nb_instances=$OPTARG ;; # Nombre d'instances
+		h) usage ;; # Afficher l'aide
+		*) 
+			echo "Option inconnue : -$OPTARG"
+			usage
+			;;
+	esac
+done
 
+# GÉNÉRATION DU RÉPERTOIRE SI NÉCESSAIRE
+if [[ ! -d $dir ]]; then
+	mkdir -p "$dir"
+fi
 
 # GÉNÉRATION DES INSTANCES ALÉATOIRES
 #
@@ -110,4 +130,13 @@ nb_instances=10
 # au fichier (sans suffixe, des espaces ou d'autres caractères) :
 #		20_200_4
 
-# TODO
+for nb_segments in $(seq $nb_segments_min $nb_segments_step $nb_segments_max); do
+	for r in $(seq $r_min $r_step $r_max); do
+		for i in $(seq 1 $nb_instances); do
+			instance_file="$dir/${nb_segments}_${r}_${i}"
+			bash ./script/generate_instance.sh "$instance_file" "$nb_segments" "$r"
+		done
+	done
+done
+
+echo "Génération de la collection terminée dans le répertoire '$dir'."

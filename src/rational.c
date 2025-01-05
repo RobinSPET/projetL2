@@ -32,24 +32,35 @@ void set_denominator(struct Rational * r, long long new_denominator) {
  * @return PGCD(a,b)
  */
 static long long gcd(long long a, long long b) {
-	if (b == 0) perror("gcd: division par 0");
-
-    int reste = a % b;
-
-    if (reste == 0) return b;
-
-    return gcd(b,reste);
+    if (b == 0) {
+        if (a == 0) {
+            fprintf(stderr, "Erreur : gcd(%lld, %lld) n'est pas défini.\n", a, b);
+            exit(EXIT_FAILURE);
+        }
+        return llabs(a); // Retourne la valeur absolue de a
+    }
+    return gcd(b, a % b);
 }
 
-void simplify(struct Rational * r) {
-	assert(r);
+void simplify(struct Rational *r) {
+    assert(r);
+    if (r->denominator == 0) {
+        fprintf(stderr, "Erreur : Dénominateur nul dans simplify.\n");
+        exit(EXIT_FAILURE);
+    }
 
-	long long g = gcd(get_numerator(*r), get_denominator(*r));
+    long long g = gcd(r->numerator, r->denominator);
 
-	if (g == 1 || g == 0) return;
+    if (g > 1) {
+        r->numerator /= g;
+        r->denominator /= g;
+    }
 
-	set_numerator(r, get_numerator(*r) / g);
-	set_denominator(r, get_denominator(*r) / g);
+    // Normaliser le signe : le dénominateur doit être positif
+    if (r->denominator < 0) {
+        r->numerator = -r->numerator;
+        r->denominator = -r->denominator;
+    }
 }
 
 /**
@@ -124,26 +135,30 @@ int neq(struct Rational a, struct Rational b) {
 
 // Pensez à simplifier le résultat.
 struct Rational radd(struct Rational a, struct Rational b) {
-	struct Rational res;
-    if (get_denominator(a) != get_denominator(b)) toSameDenominator(&a, &b);
+    struct Rational res;
 
-    set_numerator(&res, get_numerator(a) + get_numerator(b));
-    set_denominator(&res, get_denominator(a) + get_denominator(b));
+    // Calculer le dénominateur commun
+    long long common_denominator = a.denominator * b.denominator;
+
+    res.numerator = a.numerator * b.denominator + b.numerator * a.denominator;
+    res.denominator = common_denominator;
 
     simplify(&res);
-  	return res;
+    return res;
 }
 
 // Pensez à simplifier le résultat.
 struct Rational rsub(struct Rational a, struct Rational b) {
-	struct Rational res;
-    if (get_denominator(a) != get_denominator(b)) toSameDenominator(&a, &b);
+    struct Rational res;
 
-	set_numerator(&res, get_numerator(a) - get_numerator(b));
-	set_denominator(&res, get_denominator(a) - get_denominator(b));
+    // Calculer le dénominateur commun
+    long long common_denominator = a.denominator * b.denominator;
+
+    res.numerator = a.numerator * b.denominator - b.numerator * a.denominator;
+    res.denominator = common_denominator;
 
     simplify(&res);
-	return res;
+    return res;
 }
 
 // Pensez à simplifier le résultat.
@@ -159,13 +174,17 @@ struct Rational rmul(struct Rational a, struct Rational b) {
 
 // Pensez à simplifier le résultat.
 struct Rational rdiv(struct Rational a, struct Rational b) {
-	struct Rational res;
+    if (b.numerator == 0) {
+        fprintf(stderr, "Erreur : Division par zéro dans rdiv.\n");
+        exit(EXIT_FAILURE);
+    }
 
-	struct Rational bReverted;
-	set_numerator(&bReverted, get_denominator(b));
-	set_denominator(&bReverted, get_numerator(b));
+    struct Rational bReverted = {
+        .numerator = b.denominator,
+        .denominator = b.numerator
+    };
 
-	return rmul(a, bReverted);
+    return rmul(a, bReverted);
 }
 
 struct Rational rmax(struct Rational a, struct Rational b) {
