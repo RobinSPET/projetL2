@@ -165,7 +165,7 @@ void delete_tree(struct tree_t * T, void (*freeKey)(void *), void (*freeData)(vo
  */
 static void view_tree_inorder(struct tree_node_t * curr, void (*viewKey)(const void *), void (*viewData)(const void *)) {
 	if (curr == NULL) {
-		return NULL;
+		return;
 	}
 
 	view_tree_inorder(get_left(curr), viewKey, viewData);
@@ -194,9 +194,9 @@ void view_tree(const struct tree_t * T, void (*viewKey)(const void * key), void 
  * @param[in] data 
  * @param[in] precedes
  */
-static void insert_tree_node(tree_node_t **curr, void *key, void *data, int (*precedes)(const void *, const void *)) {
+static void insert_tree_node(struct tree_node_t **curr, void *key, void *data, int (*precedes)(const void *, const void *)) {
     if (*curr == NULL) {
-        *curr = create_tree_node(key, data);
+        *curr = new_tree_node(key, data);
         if (!*curr) {
             return;
         }
@@ -210,7 +210,7 @@ static void insert_tree_node(tree_node_t **curr, void *key, void *data, int (*pr
     }
 }
 // NB : Utiliser la fonction récursive insert_tree_node.
-void tree_insert(tree_t *T, void *key, void *data, int (*precedes)(const void *, const void *)) {
+void tree_insert(struct tree_t *T, void *key, void *data, int (*precedes)(const void *, const void *)) {
     assert(T);
     insert_tree_node(&T->root, key, data, precedes);
     increase_tree_size(T);
@@ -331,7 +331,6 @@ static void * remove_tree_node(struct tree_node_t ** curr, void * key, int (*pre
 // NB : Utiliser la fonction récursive remove_tree_node.
 void * tree_remove(struct tree_t * T, void * key, int (*precedes)(const void * a, const void * b)) {
 	assert(T);
-
 	if (T->root == NULL) {
         return NULL; //l'arbre est donc vide
     }

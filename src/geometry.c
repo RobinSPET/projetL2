@@ -23,6 +23,13 @@ struct Point * new_point(struct Rational x, struct Rational y) {
     return p;
 }
 
+void free_point(struct Point *p){
+	assert(p);
+
+	free(p);
+	p = NULL;
+}
+
 struct Rational get_x(const struct Point * p) {
 	assert(p);
 	return p->x;
@@ -131,7 +138,7 @@ int segment_precedes(const struct Segment * s1, const struct Segment * s2, struc
 	t = rdiv(rsub(x0, get_x(get_endpoint1(s2))), rsub(get_x(get_endpoint2(s2)), get_x(get_endpoint1(s2))));
 	struct Rational y2 = rmul(radd(get_y(get_endpoint1(s2)), t), rsub(get_y(get_endpoint1(s2)), get_y(get_endpoint2(s2))));
 
-    if (gt(y1, y2)) return 1;
+  if (gt(y1, y2)) return 1;
 
 	return 0;
 }
