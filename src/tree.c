@@ -79,7 +79,7 @@ void set_right(struct tree_node_t * node, struct tree_node_t * new_right) {
  *********************************************************************/
 
 struct tree_t * new_tree() {
-	struct tree_t *t = (struct Point *)malloc(sizeof(struct tree_t));
+	struct tree_t *t = (struct tree_t *)malloc(sizeof(struct tree_t));
 
 	if (t == NULL) {
 		perror("Erreur d'allocation mémoire");
@@ -135,8 +135,8 @@ static void delete_tree_node(struct tree_node_t * curr, void (*freeKey)(void *),
 
 	delete_tree_node(get_left(curr), freeKey, freeData);
 
-	freeKey(curr);
-	freeData(curr);
+	if (freeKey) freeKey(get_tree_node_key(curr));
+	if (freeData) freeData(get_tree_node_data(curr));
 
 	delete_tree_node(get_right(curr), freeKey, freeData);
 
@@ -217,32 +217,33 @@ void tree_insert(struct tree_t *T, void *key, void *data, int (*precedes)(const 
 }
 
 struct tree_node_t * tree_find_min(struct tree_node_t * curr) {
-	assert(curr);
-
-	return (get_tree_node_data(curr) > tree_find_min(get_left(curr))) // compare le noeud actuel avec la valeur minimale de tous les fils
-		? tree_find_min(curr)
-		: get_tree_node_data(curr);
-
+    assert(curr);
+    while (get_left(curr) != NULL) {
+        curr = get_left(curr);
+    }
+    return curr;
 }
 
 struct tree_node_t * tree_find_max(struct tree_node_t * curr) {
-	assert(curr);
-
-	return (get_tree_node_data(curr) < tree_find_min(get_left(curr))) // compare le noeud actuel avec la valeur minimale de tous les fils
-		? tree_find_min(curr)
-		: get_tree_node_data(curr);
+    assert(curr);
+    while (get_right(curr) != NULL) {
+        curr = get_right(curr);
+    }
+    return curr;
 }
 
 struct tree_node_t * tree_find_node(struct tree_node_t * curr, const void * key, int (*precedes)(const void *, const void *)) {
 	if (curr == NULL) return NULL;
 
-	if (precedes(get_tree_node_key(curr), key) == 0) {
-		return curr;
-	} else if (precedes(get_tree_node_key(curr), key) == -1) {
-		return tree_find_node(get_left(curr), key, precedes);
-	} else {
-		return tree_find_node(get_right(curr), key, precedes);
-	}
+    if (!precedes(curr->key, key) && !precedes(key, curr->key)) {
+        return curr;
+    }
+
+    if (precedes(key, curr->key)) {
+        return tree_find_node(curr->left, key, precedes);
+    }
+
+    return tree_find_node(curr->right, key, precedes);
 }
 
 struct tree_node_t * tree_find_predecessor(struct tree_node_t * curr, const void * key, int (*precedes)(const void *, const void *)) {

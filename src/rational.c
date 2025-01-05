@@ -159,8 +159,6 @@ struct Rational rmul(struct Rational a, struct Rational b) {
 
 // Pensez à simplifier le résultat.
 struct Rational rdiv(struct Rational a, struct Rational b) {
-	struct Rational res;
-
 	struct Rational bReverted;
 	set_numerator(&bReverted, get_denominator(b));
 	set_denominator(&bReverted, get_numerator(b));
