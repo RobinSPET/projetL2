@@ -1,4 +1,4 @@
-#include "../include/rational.h"
+#include "rational.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -65,9 +65,6 @@ void toSameDenominator(struct Rational *r1, struct Rational *r2) {
 
   	set_numerator(r2, get_numerator(*r2) * get_denominator(tmp));
   	set_denominator(r2, get_denominator(*r2) * get_denominator(tmp));
-
-	// Libération mémoire de la variable temporaire
-	free(&tmp);
 }
 
 int gt(struct Rational a, struct Rational b) {

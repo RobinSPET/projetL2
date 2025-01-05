@@ -21,7 +21,7 @@ struct list_t *load_segments(const char *input_filename) {
         return NULL;
     }
 
-    struct list_t *segment_list = list_create();
+    struct list_t *segment_list = new_list();
     assert(segment_list != NULL);
 
     long long x1_num, x1_denom, y1_num, y1_denom;
@@ -37,7 +37,7 @@ struct list_t *load_segments(const char *input_filename) {
         struct Point *p2 = new_point(x2, y2);
 
         struct Segment *s = new_segment(p1, p2);
-        list_push_back(segment_list, &s, sizeof(struct Segment));
+        list_insert_last(segment_list, &s);
     }
 
     fclose(file);
@@ -72,7 +72,7 @@ struct list_t * all_pairs(const struct list_t * segments) {
 	
 	struct list_t * intersections = new_list();
 
-	struct list_node_t * noeud1 = get_head(segments);
+	struct list_node_t * noeud1 = get_list_head(segments);
 	while (noeud1){
 		struct Segment * s1 = get_list_node_data(noeud1);
 
@@ -81,13 +81,15 @@ struct list_t * all_pairs(const struct list_t * segments) {
 			struct Segment * s2 = get_list_node_data(noeud2);
 
 			struct Point * intersection = get_intersection_point(s1, s2);
-			if (intersection) list_insert_last(segments, intersection);
+			if (intersection) list_insert_last(intersections, intersection);
 
-			noeud2 = get_successeur(noeud2);
+			noeud2 = get_successor(noeud2);
 		}
 
-		noeud1 = get_successeur(noeud1);
+		noeud1 = get_successor(noeud1);
 	}
+
+    return intersections;
 }
 
 
@@ -97,26 +99,36 @@ struct list_t * all_pairs(const struct list_t * segments) {
 
 struct Event * new_event(int type, struct Point * event_point, struct Segment * s1, struct Segment * s2) {
 	// TODO
+	struct Event *event = malloc(sizeof(struct Event));
+    if (!event) {
+        fprintf(stderr, "il est impossible d'allouer de la mémoire.\n");
+        exit(EXIT_FAILURE);
+    }
+    event->type = type;
+    event->event_point = event_point;
+    event->s1 = s1;
+    event->s2 = s2;
+    return event;
 }
 
 int get_event_type(const struct Event * event) {
 	assert(event);
-	// TODO
+	return event->type;
 }
 
 struct Point * get_event_point(const struct Event * event) {
 	assert(event);
-	// TODO
+	return event->event_point;
 }
 
 struct Segment * get_event_segment1(const struct Event * event) {
 	assert(event);
-	// TODO
+	return event->s1;
 }
 
 struct Segment * get_event_segment2(const struct Event * event) {
 	assert(event);
-	// TODO
+	return event->s2;
 }
 
 /**
@@ -129,9 +141,24 @@ struct Segment * get_event_segment2(const struct Event * event) {
  * @param[in] segments
  * @return l'arbre des événements connus d'avance
  */
+
 static struct tree_t * initialize_events(const struct list_t * segments) {
 	assert(segments);
-	// TODO
+	struct tree_t *events = new_tree();
+
+    struct list_node_t *node = get_list_head(segments);
+
+    while (node != NULL) {
+        struct Event *begin_event = new_event(1, get_endpoint1(node), node, NULL);
+        tree_insert(events, get_endpoint1(node), begin_event, point_precedes);
+        
+        struct Event *end_event = new_event(2, get_endpoint2(node), node, NULL);
+        tree_insert(events, end_event, node, point_precedes);
+
+        node = get_successor(node);
+    }
+    
+    return events;
 }
 
 /**
@@ -152,7 +179,23 @@ static void test_and_set_intersection(struct Segment * s1, struct Segment * s2, 
 	assert(event);
 	assert(events);
 	assert(intersections);
-	// TODO
+
+    if (do_intersect(s1, s2)) {
+        struct Point *intersection = get_intersection_point(s1, s2);
+
+        if (point_precedes(get_event_point(event), intersection)) {
+
+            if (!tree_find_node(events, intersection, (int (*)(const void *, const void *))point_precedes)) {
+                struct Event *intersection_event = new_event(0, intersection, s1, s2);
+                tree_insert(events, get_event_point(intersection_event), intersection_event, (int (*)(const void *, const void *))point_precedes);
+            }
+
+            if (!list_find_node(intersections, intersection)) {
+                struct Event *intersection_event = new_event(0, &intersection, s1, s2);
+                list_insert_last(intersections, intersection);
+            }
+        }
+    }
 }
 
 /**
@@ -173,7 +216,28 @@ static void handle_intersection_event(struct Event * event, struct list_t * stat
 	assert(status);
 	assert(events);
 	assert(intersections);
-	// TODO
+    
+    struct Segment *segment1 = get_event_segment1(event);
+    struct Segment *segment2 = get_event_segment2(event);
+
+    struct list_node_t *node1 = list_find_node(status, segment1);
+    struct list_node_t *node2 = list_find_node(status, segment2);
+
+    if (!node1 || !node2) {
+        fprintf(stderr, "Erreur : Segments non trouvés dans la ligne de balayage\n");
+        return;
+    }
+    list_swap_nodes_data(node1, node2);
+
+    struct Segment *above = get_predecessor(node1) ? get_list_node_data(get_predecessor(node1)) : NULL;
+    struct Segment *below = get_successor(node2) ? get_list_node_data(get_successor(node2)) : NULL;
+
+    if (above) {
+        test_and_set_intersection(above, segment1, event, events, intersections);
+    }
+    if (below) {
+        test_and_set_intersection(segment2, below, event, events, intersections);
+    }
 }
 
 /**
@@ -194,7 +258,23 @@ static void handle_begin_event(struct Event * event, struct list_t * status, str
 	assert(status);
 	assert(events);
 	assert(intersections);
-	// TODO
+
+    struct Segment *new_segment = get_event_segment1(event);
+    assert(new_segment);
+
+    list_insert_sorted(status, new_segment, (int (*)(const void *, const void *))segment_precedes);
+
+    struct list_node_t *node = list_find_node(status, new_segment);
+
+    struct Segment *prev_segment = get_predecessor(node) ? (struct Segment *)get_list_node_data(get_predecessor(node)) : NULL;
+    struct Segment *next_segment = get_successor(node) ? (struct Segment *)get_list_node_data(get_successor(node)) : NULL;
+
+    if (prev_segment) {
+        test_and_set_intersection(prev_segment, new_segment, event, events, intersections);
+    }
+    if (next_segment) {
+        test_and_set_intersection(new_segment, next_segment, event, events, intersections);
+    }
 }
 
 /**
@@ -215,10 +295,69 @@ static void handle_end_event(struct Event * event, struct list_t * status, struc
 	assert(status);
 	assert(events);
 	assert(intersections);
-	// TODO
+
+    struct Segment *end_segment = get_event_segment1(event);
+
+    struct list_node_t *node = list_find_node(status, end_segment);
+    if (!node) return; // Si le segment n'est pas trouvé, on ne fait rien.
+
+    struct Segment *prev_segment = NULL;
+    struct Segment *next_segment = NULL;
+
+    // récupérer les voisins
+    if (get_predecessor(node)) {
+        prev_segment = get_list_node_data(get_predecessor(node));
+    }
+    if (get_successor(node)) {
+        next_segment = (struct Segment *)get_list_node_data(get_successor(node));
+    }
+
+    list_remove_node(status, node);
+
+    // test d'une nouvelle intersection entre les anciens voisins (s'ils existent)
+    if (prev_segment && next_segment) {
+        test_and_set_intersection(prev_segment, next_segment, event, events, intersections);
+    }
 }
 
 struct list_t * BentleyOttmann(const struct list_t * segments) {
-	assert(segments);
-	// TODO
+    assert(segments);
+
+    struct tree_t *events = initialize_events(segments); 
+    struct list_t *status = new_list();                   
+    struct list_t *intersections = new_list();            
+
+    while (!tree_is_empty(events)) {
+        // extrait l'événement avec la plus petite coordonnée
+        struct Event *event = tree_remove(events, get_tree_node_key(tree_find_min(events)), point_precedes);
+
+        switch (get_event_type(event)) {
+            case 1:
+                handle_begin_event(event, status, events, intersections);
+                break;
+
+            case 2: 
+                handle_end_event(event, status, events, intersections);
+                break;
+
+            case 0: 
+                handle_intersection_event(event, status, events, intersections);
+                break;
+
+            default:
+                // type d'événement inconnu
+                assert(0 && "Type d'événement inconnu !");
+                break;
+        }
+
+        // Libérer la mémoire de l'événement traité (alloué dynamiquement)
+        free_event(event);
+    }
+
+    // Libération des variables temporaires
+    delete_tree(events, free_point, free_segment);
+    delete_list(status, free_segment);
+
+    // Retourner la liste des intersections détectées
+    return intersections;
 }

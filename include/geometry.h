@@ -19,6 +19,8 @@ struct Point {
  */
 struct Point * new_point(struct Rational x, struct Rational y);
 
+void free_point(struct Point *p);
+
 /**
  * Restitue l'abscisse du point \p p .
  *

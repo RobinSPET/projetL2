@@ -23,6 +23,13 @@ struct Point * new_point(struct Rational x, struct Rational y) {
     return p;
 }
 
+void free_point(struct Point *p){
+	assert(p);
+
+	free(p);
+	p = NULL;
+}
+
 struct Rational get_x(const struct Point * p) {
 	assert(p);
 	return p->x;
@@ -111,7 +118,8 @@ void print_segment(const void * s) {
 int point_precedes(const void * p1, const void * p2) {
 	assert(p1);
 	assert(p2);
-	// TODO
+
+	return lt(get_x((p1)), get_x(p2)) || (eq(get_x(p1), get_x(p2)) && gt(get_y(p1), get_y(p2)));
 }
 
 int segment_precedes(const struct Segment * s1, const struct Segment * s2, struct Rational x0) {
@@ -122,7 +130,17 @@ int segment_precedes(const struct Segment * s1, const struct Segment * s2, struc
 	assert(lte(rmin(get_x(get_endpoint1(s2)), get_x(get_endpoint2(s2))), x0) &&
 		   lte(x0, rmax(get_x(get_endpoint1(s2)), get_x(get_endpoint2(s2)))));
 
-	// TODO
+	// calcul de y1 croisement avec x0
+	struct Rational t = rdiv(rsub(x0, get_x(get_endpoint1(s1))), rsub(get_x(get_endpoint2(s1)), get_x(get_endpoint1(s1))));
+	struct Rational y1 = rmul(radd(get_y(get_endpoint1(s1)), t), rsub(get_y(get_endpoint1(s1)), get_y(get_endpoint2(s1))));
+
+	// calcul de y2 croisement avec x0
+	t = rdiv(rsub(x0, get_x(get_endpoint1(s2))), rsub(get_x(get_endpoint2(s2)), get_x(get_endpoint1(s2))));
+	struct Rational y2 = rmul(radd(get_y(get_endpoint1(s2)), t), rsub(get_y(get_endpoint1(s2)), get_y(get_endpoint2(s2))));
+
+  if (gt(y1, y2)) return 1;
+
+	return 0;
 }
 
 /**

@@ -138,7 +138,7 @@ void delete_list(struct list_t * L, void (*freeData)(void *)) {
         next = current->successor;
 
         if (freeData) {
-            freeData(current->data);
+            freeData(get_data(current));
         }
 
         free(current); 
@@ -202,6 +202,31 @@ void list_insert_after(struct list_t * L, void * data, struct list_node_t * node
     }
     node->successor = new_node;
     increase_list_size(L);
+}
+
+void list_insert_sorted(struct list_t *list, void *data, int (*comparator)(const void *, const void *)) {
+    assert(list);
+    assert(comparator);
+
+    struct list_node_t *new_node = new_list_node(data);
+
+    // cas où la liste est vide
+    if (list_is_empty(list)) {
+        list_insert_first(list, data);
+        return;
+    }
+
+    // Parcourir la liste pour trouver la position d'insertion
+    struct list_node_t *current = get_list_head(list);
+    while (current && comparator(current->data, data) < 0) {
+        current = get_successor(current);
+    }
+
+    if (!current) {
+        list_insert_last(list, data);
+    } else {
+        list_insert_before(list, current, data);
+    }
 }
 
 void * list_remove_first(struct list_t * L) {

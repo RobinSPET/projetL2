@@ -217,6 +217,8 @@ void list_insert_last(struct list_t * L, void * data);
  */
 void list_insert_after(struct list_t * L, void * data, struct list_node_t * node);
 
+void list_insert_sorted(struct list_t *list, void *data, int (*comparator)(const void *, const void *));
+
 /**
  * Supprime le premier nœud de la liste \p L et restitue sa donnée.
  * La mémoire du nœud supprimé est libérée mais pas la mémoire de la donnée.
