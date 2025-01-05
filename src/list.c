@@ -1,4 +1,5 @@
 #include "list.h"
+#include "geometry.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -131,21 +132,21 @@ void set_list_tail(struct list_t * L, struct list_node_t * new_tail) {
 
 void delete_list(struct list_t * L, void (*freeData)(void *)) {
 	assert(L);
-	struct list_node_t *current = L->head;
-    struct list_node_t *next;
+	struct list_node_t *current = get_list_head(L);
 
     while (current) {
-        next = current->successor;
-
-        if (freeData) {
+        if (freeData && get_list_node_data(current)) {
             freeData(get_list_node_data(current));
         }
 
-        free(current); 
-        current = next;
+        if (current) free(current); 
+        current = current->successor;
     }
 
-    free(L); 
+    if (L) {
+        free(L); 
+        L = NULL;
+    }
 }
 
 void view_list(const struct list_t * L, void (*viewData)(const void *)) {
@@ -157,8 +158,22 @@ void view_list(const struct list_t * L, void (*viewData)(const void *)) {
     }
 }
 
+int is_node_already_in_list(struct list_t *L, void *data){
+    assert(L);
+    assert(data);
+
+    struct list_node_t * curr = get_list_head(L);
+    while(curr){
+        if (curr == get_list_node_data(data)) return 1;
+        curr = get_successor(curr);
+    }
+    return 0;
+}
+
 void list_insert_first(struct list_t * L, void * data) {
 	assert(L);
+    assert(!is_node_already_in_list(L, data));
+
 	struct list_node_t *new_node = new_list_node(data);
     new_node->predecessor = NULL;
 
@@ -173,6 +188,8 @@ void list_insert_first(struct list_t * L, void * data) {
 
 void list_insert_last(struct list_t * L, void * data) {
 	assert(L);
+    assert(!is_node_already_in_list(L, data));
+
 	struct list_node_t *new_node = new_list_node(data);
     new_node->successor = NULL;
 
@@ -190,6 +207,8 @@ void list_insert_last(struct list_t * L, void * data) {
 void list_insert_after(struct list_t * L, void * data, struct list_node_t * node) {
 	assert(L);
 	assert(node);
+    assert(!is_node_already_in_list(L, data));
+
 	struct list_node_t *new_node = new_list_node(data);
 
     new_node->predecessor = node;
@@ -204,21 +223,53 @@ void list_insert_after(struct list_t * L, void * data, struct list_node_t * node
     increase_list_size(L);
 }
 
+void print_list(struct list_t *L){
+    assert(L);
+
+    struct list_node_t *curr = get_list_head(L);
+    while (curr){
+        printf("========== List ==========");
+        print_segment(get_list_node_data(curr));
+        printf("=========================="); 
+
+        curr = get_successor(curr);
+    }
+}
+
 void list_insert_sorted(struct list_t *list, void *data, int (*comparator)(const void *, const void *)) {
     assert(list);
+    assert(data);
     assert(comparator);
+    assert(!is_node_already_in_list(list, data));
 
-    struct list_node_t *current = get_list_head(list);
-    while (current && comparator(current->data, data) < 0) {
-        current = get_successor(current);
-    }
+    if (get_list_head(list)){
+        struct list_node_t *current = get_list_head(list);
+        if (!current) {
+            fprintf(stderr, "Erreur : Tentative d'accès à un nœud NULL dans list_insert_sorted.\n");
+            return;
+        }
+        if (!current->data) {
+            fprintf(stderr, "Erreur : Le champ data d'un nœud est NULL.\n");
+            return;
+        }
 
-    if (!current) {
-        list_insert_last(list, data);  // Ajout en fin de liste
-    } else if (current == get_list_head(list)) {
-        list_insert_first(list, data);  // Ajout en début de liste
+        while (current && comparator(current->data, data) < 0) {
+            current = get_successor(current);
+        }
+
+        if (!current) {
+            list_insert_last(list, data);  // Ajout en fin de liste
+        } else if (current == get_list_head(list)) {
+            list_insert_first(list, data);  // Ajout en début de liste
+        } else {
+            if (!current->data || !get_predecessor(current)) {
+                fprintf(stderr, "Erreur : Donnée NULL rencontrée lors de la comparaison.\n");
+                return;
+            }
+            list_insert_after(list, data, get_predecessor(current));  // Ajout au milieu
+        }
     } else {
-        list_insert_after(list, data, get_predecessor(current));  // Ajout au milieu
+        list_insert_last(list, data);
     }
 }
 

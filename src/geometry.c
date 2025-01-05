@@ -9,6 +9,11 @@
 
 
 struct Point * new_point(struct Rational x, struct Rational y) {
+	if (x.denominator == 0 || y.denominator == 0) {
+        fprintf(stderr, "Erreur : Les coordonnées d'un point ont un dénominateur nul.\n");
+        return NULL;
+    }
+
 	struct Point *p = (struct Point *)malloc(sizeof(struct Point));
 
 	if (p == NULL) {
@@ -25,6 +30,10 @@ struct Point * new_point(struct Rational x, struct Rational y) {
 void free_point(struct Point *p){
 	assert(p);
 
+	if (!p) {
+        fprintf(stderr, "Tentative de libérer un point NULL\n");
+        return;
+    }
 	free(p);
 	p = NULL;
 }
@@ -54,8 +63,8 @@ void print_point(const void * p) {
 	const struct Point *point = (const struct Point *)p;
 
 	printf("============== Point ==============\n");
-	printf("===== abscisse : %lld =====\n", get_numerator(get_x(point))/get_denominator(get_x(point)));
-	printf("===== ordonnée : %lld =====\n", get_numerator(get_y(point))/get_denominator(get_y(point)));
+	printf("===== abscisse : %lld/%lld =====\n", get_numerator(get_x(point)), get_denominator(get_x(point)));
+	printf("===== ordonnée : %lld/%lld =====\n", get_numerator(get_y(point)), get_denominator(get_y(point)));
 	printf("===================================\n");
 }
 
@@ -76,6 +85,10 @@ struct Segment * new_segment(struct Point * endpoint1, struct Point * endpoint2)
 void free_segment(void * s) {
 	assert(s);
 
+	if (!s) {
+        fprintf(stderr, "Tentative de libérer un segment NULL\n");
+        return;
+    }
 	free(s);
 	s = NULL;
 }
@@ -124,6 +137,11 @@ int point_precedes(const void * p1, const void * p2) {
 int segment_precedes(const struct Segment * s1, const struct Segment * s2, struct Rational x0) {
 	assert(s1);
 	assert(s2);
+	printf("segment_precedes");
+	if (!s1 || !s2) {
+        fprintf(stderr, "Erreur : segment_precedes appelé avec un segment NULL.\n");
+        exit(EXIT_FAILURE);
+    }
 	assert(lte(rmin(get_x(get_endpoint1(s1)), get_x(get_endpoint2(s1))), x0) &&
 		   lte(x0, rmax(get_x(get_endpoint1(s1)), get_x(get_endpoint2(s1)))));
 	assert(lte(rmin(get_x(get_endpoint1(s2)), get_x(get_endpoint2(s2))), x0) &&

@@ -140,8 +140,10 @@ static void delete_tree_node(struct tree_node_t * curr, void (*freeKey)(void *),
 
 	delete_tree_node(get_right(curr), freeKey, freeData);
 
-	free(curr); 
-	curr = NULL;
+	if (curr) {
+		free(curr);
+		curr = NULL;
+	}
 }
 
 // NB : Utiliser la procédure récursive delete_tree_node.
@@ -150,8 +152,10 @@ void delete_tree(struct tree_t * T, void (*freeKey)(void *), void (*freeData)(vo
 	
 	delete_tree_node(get_root(T), freeKey, freeData);
 
-	free(T);
-	T = NULL;
+	if (T) {
+		free(T);
+		T = NULL;
+	}
 }
 
 /**

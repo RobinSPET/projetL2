@@ -62,7 +62,7 @@ if ! [[ $n =~ ^[0-9]+$ ]] || (( n <= 0 )); then
     exit 1
 fi
 
-# Utilisation d'un tableau classique
+# Initialisation du tableau des points
 Points=()
 
 # GÉNÉRATION DES SEGMENTS
@@ -89,21 +89,31 @@ Points=()
 # devez créer un nouveau segment. Cela est répété autant de fois que besoin.
 
 for i in $(seq 1 $n); do
+    attempt=0
+    max_attempts=1000  # Limite des tentatives pour éviter les boucles infinies
     while :; do
-        # Générer deux points aléatoires (x1, y1) et (x2, y2)
+        ((attempt++))
+        if ((attempt > max_attempts)); then
+            echo "Erreur : Impossible de générer un segment valide après $max_attempts tentatives."
+            exit 1
+        fi
+
+        # Générer deux points aléatoires (x1, y1) et (x2, y2) avec leurs dénominateurs
         x1=$(getNormalDistributionSample 1 $range)
         y1=$(getNormalDistributionSample 1 $range)
+        m1=$(getNormalDistributionSample 1 $range)  # dénominateur pour x1 et y1
         x2=$(getNormalDistributionSample 1 $range)
         y2=$(getNormalDistributionSample 1 $range)
+        m2=$(getNormalDistributionSample 1 $range)  # dénominateur pour x2 et y2
 
-        point1="${x1}/1,${y1}/1"
-        point2="${x2}/1,${y2}/1"
+        point1="${x1}/${m1},${y1}/${m1}"
+        point2="${x2}/${m2},${y2}/${m2}"
 
         # Vérification : les points doivent être uniques
-        if printf '%s\n' "${Points[@]}" | grep -q -x "$point1"; then
+        if printf '%s\n' "${Points[@]}" | grep -qx "$point1"; then
             continue
         fi
-        if printf '%s\n' "${Points[@]}" | grep -q -x "$point2"; then
+        if printf '%s\n' "${Points[@]}" | grep -qx "$point2"; then
             continue
         fi
 
@@ -112,7 +122,7 @@ for i in $(seq 1 $n); do
             continue
         fi
 
-        # Ajouter les points dans le tableau
+        # Ajouter les points dans le tableau classique
         Points+=("$point1")
         Points+=("$point2")
 
