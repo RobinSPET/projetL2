@@ -1,6 +1,5 @@
-#include "../include/rational.h"
-#include "../src/rational.c"
-#include "../include/geometry.h"
+#include "rational.h"
+#include "geometry.h"
 
 #include <stdio.h>
 #include <stdlib.h>

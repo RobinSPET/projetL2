@@ -208,22 +208,17 @@ void list_insert_sorted(struct list_t *list, void *data, int (*comparator)(const
     assert(list);
     assert(comparator);
 
-    // cas où la liste est vide
-    if (list_is_empty(list)) {
-        list_insert_first(list, data);
-        return;
-    }
-
-    // Parcourir la liste pour trouver la position d'insertion
     struct list_node_t *current = get_list_head(list);
     while (current && comparator(current->data, data) < 0) {
         current = get_successor(current);
     }
 
     if (!current) {
-        list_insert_last(list, data);
+        list_insert_last(list, data);  // Ajout en fin de liste
+    } else if (current == get_list_head(list)) {
+        list_insert_first(list, data);  // Ajout en début de liste
     } else {
-        list_insert_after(list, current, data);
+        list_insert_after(list, data, get_predecessor(current));  // Ajout au milieu
     }
 }
 

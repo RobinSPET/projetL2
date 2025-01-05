@@ -38,8 +38,32 @@ getNormalDistributionSample () {
 # S'il n'y a pas d'erreur, affectez les paramètres aux variables globales
 # (filename, n, range).
 
-# TODO
+if [[ $# -ne 3 ]]; then
+    echo "Usage: $0 <nom_fichier> <nombre_segments> <spectre_valeurs>"
+    exit 1
+fi
 
+filename=$1
+n=$2
+range=$3
+
+if [[ -e $filename ]]; then
+    echo "Erreur : Le fichier '$filename' existe déjà."
+    exit 1
+fi
+
+if ! [[ $range =~ ^[0-9]+$ ]] || (( range < 100 || range > 10000 )); then
+    echo "Erreur : Le paramètre range doit être un entier dans l'intervalle [100, 10000]."
+    exit 1
+fi
+
+if ! [[ $n =~ ^[0-9]+$ ]] || (( n <= 0 )); then
+    echo "Erreur : Le nombre de segments doit être un entier positif."
+    exit 1
+fi
+
+# Utilisation d'un tableau classique
+Points=()
 
 # GÉNÉRATION DES SEGMENTS
 #
@@ -64,4 +88,38 @@ getNormalDistributionSample () {
 # Attention ! Si le segment créé est parallèle à l'axe des ordonnées, vous
 # devez créer un nouveau segment. Cela est répété autant de fois que besoin.
 
-# TODO
+for i in $(seq 1 $n); do
+    while :; do
+        # Générer deux points aléatoires (x1, y1) et (x2, y2)
+        x1=$(getNormalDistributionSample 1 $range)
+        y1=$(getNormalDistributionSample 1 $range)
+        x2=$(getNormalDistributionSample 1 $range)
+        y2=$(getNormalDistributionSample 1 $range)
+
+        point1="${x1}/1,${y1}/1"
+        point2="${x2}/1,${y2}/1"
+
+        # Vérification : les points doivent être uniques
+        if printf '%s\n' "${Points[@]}" | grep -q -x "$point1"; then
+            continue
+        fi
+        if printf '%s\n' "${Points[@]}" | grep -q -x "$point2"; then
+            continue
+        fi
+
+        # Vérification : le segment ne doit pas être parallèle à l'axe des ordonnées
+        if [[ $x1 -eq $x2 ]]; then
+            continue
+        fi
+
+        # Ajouter les points dans le tableau
+        Points+=("$point1")
+        Points+=("$point2")
+
+        # Écrire le segment dans le fichier
+        echo "$point1 $point2" >> "$filename"
+        break
+    done
+done
+
+echo "Instance générée avec succès dans le fichier '$filename'."

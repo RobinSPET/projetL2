@@ -98,7 +98,6 @@ struct list_t * all_pairs(const struct list_t * segments) {
 ///////////////////////////////////////////////////////////////////////////////
 
 struct Event * new_event(int type, struct Point * event_point, struct Segment * s1, struct Segment * s2) {
-	// TODO
 	struct Event *event = malloc(sizeof(struct Event));
     if (!event) {
         fprintf(stderr, "il est impossible d'allouer de la mémoire.\n");
@@ -131,6 +130,16 @@ struct Segment * get_event_segment2(const struct Event * event) {
 	return event->s2;
 }
 
+void delete_event(struct Event * event){
+    assert(event);
+
+    free_point(get_event_point(event));
+    free_segment(get_event_segment1(event));
+    free_segment(get_event_segment2(event));
+    free(event);
+    event = NULL;
+}
+
 /**
  * Initialise la structure des événements (arbre binaire de recherche) avec les
  * événements connus d'avance (début et fin des segments de la liste
@@ -149,11 +158,11 @@ static struct tree_t * initialize_events(const struct list_t * segments) {
     struct list_node_t *node = get_list_head(segments);
 
     while (node != NULL) {
-        struct Event *begin_event = new_event(1, get_endpoint1(node), node, NULL);
-        tree_insert(events, get_endpoint1(node), begin_event, point_precedes);
+        struct Event *begin_event = new_event(1, get_endpoint1(get_list_node_data(node)), get_list_node_data(node), NULL);
+        tree_insert(events, get_endpoint1(get_list_node_data(node)), begin_event, point_precedes);
         
-        struct Event *end_event = new_event(2, get_endpoint2(node), node, NULL);
-        tree_insert(events, end_event, node, point_precedes);
+        struct Event *end_event = new_event(2, get_endpoint2(get_list_node_data(node)), get_list_node_data(node), NULL);
+        tree_insert(events, get_endpoint2(get_list_node_data(node)), end_event, point_precedes);
 
         node = get_successor(node);
     }
@@ -185,13 +194,12 @@ static void test_and_set_intersection(struct Segment * s1, struct Segment * s2, 
 
         if (point_precedes(get_event_point(event), intersection)) {
 
-            if (!tree_find_node(events, intersection, (int (*)(const void *, const void *))point_precedes)) {
+            if (!tree_find_node(get_root(events), intersection, (int (*)(const void *, const void *))point_precedes)) {
                 struct Event *intersection_event = new_event(0, intersection, s1, s2);
                 tree_insert(events, get_event_point(intersection_event), intersection_event, (int (*)(const void *, const void *))point_precedes);
             }
 
             if (!list_find_node(intersections, intersection)) {
-                struct Event *intersection_event = new_event(0, &intersection, s1, s2);
                 list_insert_last(intersections, intersection);
             }
         }
@@ -329,7 +337,7 @@ struct list_t * BentleyOttmann(const struct list_t * segments) {
 
     while (!tree_is_empty(events)) {
         // extrait l'événement avec la plus petite coordonnée
-        struct Event *event = tree_remove(events, get_tree_node_key(tree_find_min(events)), point_precedes);
+        struct Event *event = tree_remove(events, get_tree_node_key(tree_find_min(get_root(events))), point_precedes);
 
         switch (get_event_type(event)) {
             case 1:
@@ -351,11 +359,11 @@ struct list_t * BentleyOttmann(const struct list_t * segments) {
         }
 
         // Libérer la mémoire de l'événement traité (alloué dynamiquement)
-        free_event(event);
+        delete_event(event);
     }
 
     // Libération des variables temporaires
-    delete_tree(events, free_point, free_segment);
+    delete_tree(events, (void (*)(void *))free_point, (void (*)(void *))free_segment); // cast pour faire passer les pointeurs des fonctions
     delete_list(status, free_segment);
 
     // Retourner la liste des intersections détectées
