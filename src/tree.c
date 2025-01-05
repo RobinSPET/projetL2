@@ -165,7 +165,7 @@ void delete_tree(struct tree_t * T, void (*freeKey)(void *), void (*freeData)(vo
  */
 static void view_tree_inorder(struct tree_node_t * curr, void (*viewKey)(const void *), void (*viewData)(const void *)) {
 	if (curr == NULL) {
-		return NULL;
+		return;
 	}
 
 	view_tree_inorder(get_left(curr), viewKey, viewData);
@@ -196,7 +196,7 @@ void view_tree(const struct tree_t * T, void (*viewKey)(const void * key), void 
  */
 static void insert_tree_node(struct tree_node_t **curr, void *key, void *data, int (*precedes)(const void *, const void *)) {
     if (*curr == NULL) {
-        *curr = create_tree_node(key, data);
+        *curr = new_tree_node(key, data);
         if (!*curr) {
             return;
         }

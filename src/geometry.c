@@ -23,6 +23,13 @@ struct Point * new_point(struct Rational x, struct Rational y) {
     return p;
 }
 
+void free_point(struct Point *p){
+	assert(p);
+
+	free(p);
+	p = NULL;
+}
+
 struct Rational get_x(const struct Point * p) {
 	assert(p);
 	return p->x;
