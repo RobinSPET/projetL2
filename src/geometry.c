@@ -111,7 +111,8 @@ void print_segment(const void * s) {
 int point_precedes(const void * p1, const void * p2) {
 	assert(p1);
 	assert(p2);
-	// TODO
+
+	return lt(get_x((p1)), get_x(p2)) || (eq(get_x(p1), get_x(p2)) && gt(get_y(p1), get_y(p2)));
 }
 
 int segment_precedes(const struct Segment * s1, const struct Segment * s2, struct Rational x0) {
