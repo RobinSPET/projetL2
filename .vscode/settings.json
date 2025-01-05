@@ -42,6 +42,7 @@
         "vector": "c",
         "cmath": "c",
         "list.h": "c",
+        "rational.h": "c"
         "geometry.h": "c"
     }
 }
