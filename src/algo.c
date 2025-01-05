@@ -17,27 +17,41 @@
 struct list_t *load_segments(const char *input_filename) {
     FILE *file = fopen(input_filename, "r");
     if (!file) {
-        fprintf(stderr, "Le fichier est impossible à ouvrir %s\n", input_filename);
+        fprintf(stderr, "Erreur : Impossible d'ouvrir le fichier %s\n", input_filename);
         return NULL;
     }
 
     struct list_t *segment_list = new_list();
-    assert(segment_list != NULL);
+    assert(segment_list);
 
     long long x1_num, x1_denom, y1_num, y1_denom;
     long long x2_num, x2_denom, y2_num, y2_denom;
 
-    while (fscanf(file, "%lld/%lld,%lld/%lld %lld/%lld,%lld/%lld", &x1_num, &x1_denom, &y1_num, &y1_denom,&x2_num, &x2_denom, &y2_num, &y2_denom) == 8) {
+    while (fscanf(file, "%lld/%lld,%lld/%lld %lld/%lld,%lld/%lld", &x1_num, &x1_denom, &y1_num, &y1_denom, &x2_num, &x2_denom, &y2_num, &y2_denom) == 8) {
+        // Vérifier les dénominateurs non nuls
+        if (x1_denom == 0 || y1_denom == 0 || x2_denom == 0 || y2_denom == 0) {
+            fprintf(stderr, "Erreur : Segment avec dénominateur nul dans %s\n", input_filename);
+            continue;
+        }
+
         struct Rational x1 = {x1_num, x1_denom};
         struct Rational y1 = {y1_num, y1_denom};
         struct Rational x2 = {x2_num, x2_denom};
         struct Rational y2 = {y2_num, y2_denom};
-        
+
         struct Point *p1 = new_point(x1, y1);
         struct Point *p2 = new_point(x2, y2);
 
+        // Vérifier que les deux points ne sont pas identiques
+        if (point_precedes(p1, p2) == 0 && point_precedes(p2, p1) == 0) {
+            fprintf(stderr, "Erreur : Points identiques dans un segment, ignoré.\n");
+            free_point(p1);
+            free_point(p2);
+            continue;
+        }
+
         struct Segment *s = new_segment(p1, p2);
-        list_insert_last(segment_list, &s);
+        list_insert_last(segment_list, s);
     }
 
     fclose(file);
@@ -56,10 +70,11 @@ void save_intersections(const char *output_filename, const struct list_t *inters
     while (current_node) {
         struct Point *point = (struct Point *)get_list_node_data(current_node);
 
+        printf("call get_x from save\n");
         struct Rational x = get_x(point);
         struct Rational y = get_y(point);
 
-        fprintf(file, "%lld/%lld,%lld/%lld\n",
+        fprintf(file, "print: %lld/%lld,%lld/%lld\n",
             get_numerator(x), get_denominator(x), get_numerator(y), get_denominator(y));
 
         current_node = get_successor(current_node);
@@ -98,7 +113,6 @@ struct list_t * all_pairs(const struct list_t * segments) {
 ///////////////////////////////////////////////////////////////////////////////
 
 struct Event * new_event(int type, struct Point * event_point, struct Segment * s1, struct Segment * s2) {
-	// TODO
 	struct Event *event = malloc(sizeof(struct Event));
     if (!event) {
         fprintf(stderr, "il est impossible d'allouer de la mémoire.\n");
@@ -131,6 +145,19 @@ struct Segment * get_event_segment2(const struct Event * event) {
 	return event->s2;
 }
 
+void delete_event(struct Event * event){
+    assert(event);
+
+    if (get_event_point(event)) free_point(get_event_point(event));
+    if (get_event_segment1(event)) free_segment(get_event_segment1(event));
+    if (get_event_segment2(event)) free_segment(get_event_segment2(event));
+
+    if (event) {
+        free(event);
+        event = NULL;
+    }
+}
+
 /**
  * Initialise la structure des événements (arbre binaire de recherche) avec les
  * événements connus d'avance (début et fin des segments de la liste
@@ -149,11 +176,11 @@ static struct tree_t * initialize_events(const struct list_t * segments) {
     struct list_node_t *node = get_list_head(segments);
 
     while (node != NULL) {
-        struct Event *begin_event = new_event(1, get_endpoint1(node), node, NULL);
-        tree_insert(events, get_endpoint1(node), begin_event, point_precedes);
+        struct Event *begin_event = new_event(1, get_endpoint1(get_list_node_data(node)), get_list_node_data(node), NULL);
+        tree_insert(events, get_endpoint1(get_list_node_data(node)), begin_event, point_precedes);
         
-        struct Event *end_event = new_event(2, get_endpoint2(node), node, NULL);
-        tree_insert(events, end_event, node, point_precedes);
+        struct Event *end_event = new_event(2, get_endpoint2(get_list_node_data(node)), get_list_node_data(node), NULL);
+        tree_insert(events, get_endpoint2(get_list_node_data(node)), end_event, point_precedes);
 
         node = get_successor(node);
     }
@@ -185,14 +212,13 @@ static void test_and_set_intersection(struct Segment * s1, struct Segment * s2, 
 
         if (point_precedes(get_event_point(event), intersection)) {
 
-            if (!tree_find_node(events, intersection, (int (*)(const void *, const void *))point_precedes)) {
+            if (!tree_find_node(get_root(events), intersection, (int (*)(const void *, const void *))point_precedes)) {
                 struct Event *intersection_event = new_event(0, intersection, s1, s2);
                 tree_insert(events, get_event_point(intersection_event), intersection_event, (int (*)(const void *, const void *))point_precedes);
             }
 
             if (!list_find_node(intersections, intersection)) {
-                struct Event *intersection_event = new_event(0, &intersection, s1, s2);
-                list_insert_last(intersections, intersection);
+                list_insert_sorted(intersections, intersection, point_precedes);
             }
         }
     }
@@ -216,6 +242,11 @@ static void handle_intersection_event(struct Event * event, struct list_t * stat
 	assert(status);
 	assert(events);
 	assert(intersections);
+
+    if (get_event_type(event) != 0) {
+        fprintf(stderr, "Erreur : handle_intersection_event appelé pour un événement non intersection.\n");
+        return;
+    }
     
     struct Segment *segment1 = get_event_segment1(event);
     struct Segment *segment2 = get_event_segment2(event);
@@ -229,6 +260,7 @@ static void handle_intersection_event(struct Event * event, struct list_t * stat
     }
     list_swap_nodes_data(node1, node2);
 
+    printf("handle intersection");
     struct Segment *above = get_predecessor(node1) ? get_list_node_data(get_predecessor(node1)) : NULL;
     struct Segment *below = get_successor(node2) ? get_list_node_data(get_successor(node2)) : NULL;
 
@@ -262,18 +294,24 @@ static void handle_begin_event(struct Event * event, struct list_t * status, str
     struct Segment *new_segment = get_event_segment1(event);
     assert(new_segment);
 
+    printf("trying insert..");
     list_insert_sorted(status, new_segment, (int (*)(const void *, const void *))segment_precedes);
-
+    printf("passed !");
     struct list_node_t *node = list_find_node(status, new_segment);
 
-    struct Segment *prev_segment = get_predecessor(node) ? (struct Segment *)get_list_node_data(get_predecessor(node)) : NULL;
-    struct Segment *next_segment = get_successor(node) ? (struct Segment *)get_list_node_data(get_successor(node)) : NULL;
-
-    if (prev_segment) {
-        test_and_set_intersection(prev_segment, new_segment, event, events, intersections);
-    }
-    if (next_segment) {
-        test_and_set_intersection(new_segment, next_segment, event, events, intersections);
+    printf("handle_begin");
+    if (node){
+        struct Segment *prev_segment = get_predecessor(node) ? (struct Segment *)get_list_node_data(get_predecessor(node)) : NULL;
+        struct Segment *next_segment = get_successor(node) ? (struct Segment *)get_list_node_data(get_successor(node)) : NULL;
+        printf("passed1");
+        if (prev_segment) {
+            test_and_set_intersection(prev_segment, new_segment, event, events, intersections);
+            printf("passed2");
+        }
+        if (next_segment) {
+            test_and_set_intersection(new_segment, next_segment, event, events, intersections);
+            printf("passed3");
+        }
     }
 }
 
@@ -329,7 +367,7 @@ struct list_t * BentleyOttmann(const struct list_t * segments) {
 
     while (!tree_is_empty(events)) {
         // extrait l'événement avec la plus petite coordonnée
-        struct Event *event = tree_remove(events, get_tree_node_key(tree_find_min(events)), point_precedes);
+        struct Event *event = tree_remove(events, get_tree_node_key(tree_find_min(get_root(events))), point_precedes);
 
         switch (get_event_type(event)) {
             case 1:
@@ -351,11 +389,11 @@ struct list_t * BentleyOttmann(const struct list_t * segments) {
         }
 
         // Libérer la mémoire de l'événement traité (alloué dynamiquement)
-        free_event(event);
+        delete_event(event);
     }
 
     // Libération des variables temporaires
-    delete_tree(events, free_point, free_segment);
+    delete_tree(events, (void (*)(void *))free_point, (void (*)(void *))free_segment); // cast pour faire passer les pointeurs des fonctions
     delete_list(status, free_segment);
 
     // Retourner la liste des intersections détectées

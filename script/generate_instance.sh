@@ -38,8 +38,32 @@ getNormalDistributionSample () {
 # S'il n'y a pas d'erreur, affectez les paramètres aux variables globales
 # (filename, n, range).
 
-# TODO
+if [[ $# -ne 3 ]]; then
+    echo "Usage: $0 <nom_fichier> <nombre_segments> <spectre_valeurs>"
+    exit 1
+fi
 
+filename=$1
+n=$2
+range=$3
+
+if [[ -e $filename ]]; then
+    echo "Erreur : Le fichier '$filename' existe déjà."
+    exit 1
+fi
+
+if ! [[ $range =~ ^[0-9]+$ ]] || (( range < 100 || range > 10000 )); then
+    echo "Erreur : Le paramètre range doit être un entier dans l'intervalle [100, 10000]."
+    exit 1
+fi
+
+if ! [[ $n =~ ^[0-9]+$ ]] || (( n <= 0 )); then
+    echo "Erreur : Le nombre de segments doit être un entier positif."
+    exit 1
+fi
+
+# Initialisation du tableau des points
+Points=()
 
 # GÉNÉRATION DES SEGMENTS
 #
@@ -64,4 +88,48 @@ getNormalDistributionSample () {
 # Attention ! Si le segment créé est parallèle à l'axe des ordonnées, vous
 # devez créer un nouveau segment. Cela est répété autant de fois que besoin.
 
-# TODO
+for i in $(seq 1 $n); do
+    attempt=0
+    max_attempts=1000  # Limite des tentatives pour éviter les boucles infinies
+    while :; do
+        ((attempt++))
+        if ((attempt > max_attempts)); then
+            echo "Erreur : Impossible de générer un segment valide après $max_attempts tentatives."
+            exit 1
+        fi
+
+        # Générer deux points aléatoires (x1, y1) et (x2, y2) avec leurs dénominateurs
+        x1=$(getNormalDistributionSample 1 $range)
+        y1=$(getNormalDistributionSample 1 $range)
+        m1=$(getNormalDistributionSample 1 $range)  # dénominateur pour x1 et y1
+        x2=$(getNormalDistributionSample 1 $range)
+        y2=$(getNormalDistributionSample 1 $range)
+        m2=$(getNormalDistributionSample 1 $range)  # dénominateur pour x2 et y2
+
+        point1="${x1}/${m1},${y1}/${m1}"
+        point2="${x2}/${m2},${y2}/${m2}"
+
+        # Vérification : les points doivent être uniques
+        if printf '%s\n' "${Points[@]}" | grep -qx "$point1"; then
+            continue
+        fi
+        if printf '%s\n' "${Points[@]}" | grep -qx "$point2"; then
+            continue
+        fi
+
+        # Vérification : le segment ne doit pas être parallèle à l'axe des ordonnées
+        if [[ $x1 -eq $x2 ]]; then
+            continue
+        fi
+
+        # Ajouter les points dans le tableau classique
+        Points+=("$point1")
+        Points+=("$point2")
+
+        # Écrire le segment dans le fichier
+        echo "$point1 $point2" >> "$filename"
+        break
+    done
+done
+
+echo "Instance générée avec succès dans le fichier '$filename'."
